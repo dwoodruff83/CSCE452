@@ -56,6 +56,23 @@ public class Matrix
 		}
 	}
 
+	public Matrix( List<float> array, int columns)
+	{
+		int rows = array.Count / columns;
+		m_matrix = new List<List<float>>();
+		
+		int arrayLocation = 0;
+		for(int row = 0; row < rows; row++)
+		{
+			m_matrix.Add (new List<float>());
+			for (int setcolumn = 0; setcolumn < columns; setcolumn++)
+			{
+				m_matrix[row].Add(array[arrayLocation]);
+				arrayLocation++;
+			}
+		}
+	}
+
 	public Matrix(Matrix oldMatrix)
 	{
 		m_matrix = new List<List<float>>();
@@ -138,6 +155,11 @@ public class Matrix
 		return new List<float>(m_matrix[row]);
 	}
 
+	public Matrix GetRow(int row)
+	{
+
+	}
+
 	/// <summary>
 	/// Gets the specified column by value	/// </summary>
 	/// <returns>The column.</returns>
@@ -151,6 +173,11 @@ public class Matrix
 		}
 
 		return columnVector;
+	}
+
+	public Matrix GetColumn(int column)
+	{
+
 	}
 
 	public void Print(string name)
