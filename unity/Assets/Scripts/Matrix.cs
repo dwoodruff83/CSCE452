@@ -153,9 +153,9 @@ public class Matrix
 		return columnVector;
 	}
 
-	public void Print()
+	public void Print(string name)
 	{
-		Debug.Log(this.ToString());
+		Debug.Log(name+"\n"+ this.ToString());
 	}
 
 	/// <summary>
