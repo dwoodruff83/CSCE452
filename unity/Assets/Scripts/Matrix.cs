@@ -155,9 +155,15 @@ public class Matrix
 		return new List<float>(m_matrix[row]);
 	}
 
-	public Matrix GetRow(int row)
+	public Matrix GetRowM(int row)
 	{
+		Matrix m_rowMatrix = new Matrix (1, ColumnCount);
+		for (int column = 0; column < ColumnCount; column++)
+		{
+			m_rowMatrix[0][column] = m_matrix[row][column];
+		}
 
+		return m_rowMatrix;
 	}
 
 	/// <summary>
@@ -175,8 +181,16 @@ public class Matrix
 		return columnVector;
 	}
 
-	public Matrix GetColumn(int column)
+	public Matrix GetColumnM(int column)
 	{
+		Matrix m_columnMatrix = new Matrix(RowCount, 1);
+
+		for (int row = 0; row < RowCount; row++)
+		{
+			m_columnMatrix[row][0] = m_matrix[row][column];
+		}
+		
+		return m_columnMatrix;
 
 	}
 

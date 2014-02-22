@@ -108,33 +108,45 @@ public class Main : MonoBehaviour {
 		}
 	}
 
+	float GetAngle(Matrix Top, Matrix Mid)
+	{
+		return Mathf.Rad2Deg*Mathf.Atan2 (Top [2] [0] - Mid [2] [0],Top [1] [0] - Mid [1] [0]);
+	}
+
 	void SetTransform(Matrix a, GameObject b, Matrix LinkMid, Matrix LinkTop)
 	{
-		Matrix positionMatrix = a * link;
+		Matrix positionMatrix = a * LinkMid;
 
-		List<float> positionVec = positionMatrix.GetColumn (0);
-		Vector3 rotationVec;
+		Matrix positionVec = positionMatrix.GetColumnM (0);
+		positionVec [1] [0] *= -1;
+
+		Vector3 rotationVec = new Vector3(0,90,0);
 
 		if (b == Slider)
 		{
-			rotationVec= new Vector3 (0, 90, 90);
+			rotationVec[2] = 90;
 		} 
 		else
 		{
+			float z = 0;
 
+			if (LinkTop != null)
+			{
+				z = GetAngle (LinkTop, positionVec);
+			}
 
-			rotationVec = new Vector3 ();
+			rotationVec = new Vector3 (0,90,z);
 		}
 
 		//X needs to be flipped to match up with our initial framing, and then X and Z get switched
 		//To match up with Unity's framing;
-		b.transform.position = new Vector3 (positionVec[0],(-1*positionVec[1]),positionVec[2]);
-		b.transform.eulerAngles = rotationVec;
+		b.transform.position = new Vector3 (positionVec[0][0],positionVec[1][0],positionVec[2][0]);
+		b.transform.localEulerAngles = rotationVec;
 	}
 
 	void Paint()
 	{
-		//Instantiate (Resources.Load ("PaintDot"), new Vector3(Link3TopM[0][0], -1*Link3TopM[0][1], Link3TopM[0][2]), new Quaternion ());
+		Instantiate (Resources.Load ("PaintDot"), new Vector3(Link3TopVec[0][0]-.5f, Link3TopVec[1][0], Link3TopVec[2][0]), new Quaternion ());
 	}
 
 	void UpdateRobot()
@@ -164,22 +176,21 @@ public class Main : MonoBehaviour {
 		T23Matrix.Print ("T-23");
 		T34Matrix.Print ("T-34");
 
-		SetTransform (T01Matrix, Slider, ZeroMatrix);
-
 		Matrix LowerArmMatrix = T01Matrix;
 
 		Matrix MiddleArmMatrix = T01Matrix * T12Matrix;
 
 		Matrix UpperArmMatrix = MiddleArmMatrix*T23Matrix;
 
-		Link1TopVec = (T01Matrix * Link1TopM).GetColumn (0);
-		Link1TopVec[0][1] *= -1;
-		Link2TopVec = (MiddleArmMatrix * Link2TopM).GetColumn (0);
-		Link2TopVec[0][1] *= -1;
-		Link3TopVec = (UpperArmMatrix * Link3TopM).GetColumn (0);
-		Link3TopVec[0][1] *= -1;
+		Link1TopVec = (T01Matrix * Link1TopM);
+		Link1TopVec[1][0] *= -1;
+		Link2TopVec = (MiddleArmMatrix * Link2TopM);
+		Link2TopVec[1][0] *= -1;
+		Link3TopVec = (UpperArmMatrix * Link3TopM);
+		Link3TopVec[1][0] *= -1;
 
-		SetTransform (LowerArmMatrix, LowerArm, Link1CenterM, Link1TopVec);
+		SetTransform (T01Matrix, Slider, ZeroMatrix, null);
+		SetTransform (LowerArmMatrix, LowerArm, Link1CenterM, null);
 		SetTransform (MiddleArmMatrix, MiddleArm, Link2CenterM, Link2TopVec);
 		SetTransform (UpperArmMatrix, UpperArm, Link3CenterM, Link3TopVec);
 
