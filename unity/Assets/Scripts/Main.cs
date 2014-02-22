@@ -51,32 +51,34 @@ public class Main : MonoBehaviour {
 		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
 
 		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
-			theta4 += .1f;
-			UpdateRobot ();
-		}
-
-		if (GUI.Button (new Rect (72,60,60,60), "Upper\nC")) {
 			theta4 -= .1f;
 			UpdateRobot ();
 		}
 
+		if (GUI.Button (new Rect (72,60,60,60), "Upper\nC")) {
+			theta4 += .1f;
+			UpdateRobot ();
+		}
+
 		if (GUI.Button (new Rect (10,122,60,60), "Middle\nCC")) {
-			theta3 += .1f;
+			theta3 -= .1f;
 			UpdateRobot ();
 		}
 		
 		if (GUI.Button (new Rect (72,122,60,60), "Middle\nC")) {
-			theta3 -= .1f;
+			theta3 += .1f;
 			UpdateRobot ();
 		}
 
 		if (GUI.Button (new Rect (10,184,60,60), "Slider\nLeft")) {
-			d -= .1f;
+			if(d > -4.9f)
+				d -= .1f;
 			UpdateRobot ();
 		}
 		
 		if (GUI.Button (new Rect (72,184,60,60), "Slider\nRight")) {
-			d += .1f;
+			if(d < 4.9f)
+				d += .1f;
 			UpdateRobot ();
 		}
 
