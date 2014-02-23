@@ -33,11 +33,14 @@ public class Main : MonoBehaviour {
 	static GameObject MiddleArm;
 	static GameObject UpperArm;
 
+	static int currentJoint;
+
 	// Use this for initialization
 	void Start () {
 		d = 0;
 		theta3 = 0;
 		theta4 = 0;
+		currentJoint = 0; // default selected movement is the slider
 
 		Slider = GameObject.Find ("Slider");
 		LowerArm = GameObject.Find ("LowerArm");
@@ -49,6 +52,7 @@ public class Main : MonoBehaviour {
 
 	void OnGUI () {
 		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
+		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
 
 		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
 			theta4 -= .1f;
@@ -90,9 +94,9 @@ public class Main : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		/*
 		//Handles movig the camera for debugging.
-		if (Input.GetKey (KeyCode.LeftArrow))
-		{
+		if (Input.GetKey (KeyCode.LeftArrow)) {
 			transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z-10*Time.deltaTime);
 		}
 		else if (Input.GetKey (KeyCode.RightArrow))
@@ -108,6 +112,61 @@ public class Main : MonoBehaviour {
 		{
 			transform.position = new Vector3(transform.position.x-10*Time.deltaTime, transform.position.y, transform.position.z);
 		}
+		*/
+
+		if (Input.GetKeyDown (KeyCode.UpArrow)) 
+		{
+			if (currentJoint < 2)
+				currentJoint++;
+		}
+		if (Input.GetKeyDown (KeyCode.DownArrow)) 
+		{
+			if (currentJoint > 0)
+				currentJoint--;
+		}
+		if (Input.GetKey (KeyCode.LeftArrow)) {
+			switch(currentJoint) {
+			case 0:
+				if(d > -4.9f) {
+					d -= .025f;
+					UpdateRobot ();
+				}
+				break;
+			case 1:
+				theta3 -= .025f;
+				UpdateRobot ();
+				break;
+			case 2:
+				theta4 -= .025f;
+				UpdateRobot ();
+				break;
+
+			}
+		}
+		if (Input.GetKey (KeyCode.RightArrow)) {
+			switch(currentJoint) {
+			case 0:
+				if(d > -4.9f) {
+					d += .025f;
+					UpdateRobot ();
+				}
+				break;
+			case 1:
+				theta3 += .025f;
+				UpdateRobot ();
+				break;
+			case 2:
+				theta4 += .025f;
+				UpdateRobot ();
+				break;
+				
+			}
+		}
+		if (Input.GetKey (KeyCode.Space))
+						paintToggle = true;
+				else
+						paintToggle = false;
+
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
