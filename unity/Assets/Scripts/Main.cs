@@ -33,7 +33,31 @@ public class Main : MonoBehaviour {
 	static GameObject MiddleArm;
 	static GameObject UpperArm;
 
+	static GameObject Pivot1;
+	static GameObject Pivot2;
+
+	static Color sliderColor;
+	static Color pivot1Color;
+	static Color pivot2Color;
+
 	static int currentJoint;
+
+	void ChangeJointColor()
+	{
+		Slider.transform.renderer.material.color = sliderColor;
+		Pivot1.transform.renderer.material.color = pivot1Color;
+		Pivot2.transform.renderer.material.color = pivot2Color;
+		
+		if (currentJoint == 0) {
+			Slider.transform.renderer.material.color = Color.green;
+		}
+		else if (currentJoint == 1) {
+			Pivot1.transform.renderer.material.color = Color.green;
+		}
+		else if (currentJoint == 2) {
+			Pivot2.transform.renderer.material.color = Color.green;
+		}
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -47,13 +71,22 @@ public class Main : MonoBehaviour {
 		MiddleArm = GameObject.Find ("MiddleArm");
 		UpperArm = GameObject.Find ("UpperArm");
 
+		Pivot1 = GameObject.Find ("Pivot1");
+		Pivot2 = GameObject.Find ("Pivot2");
+
+		sliderColor = Slider.transform.renderer.material.color;
+		pivot1Color = Pivot1.transform.renderer.material.color;
+		pivot2Color = Pivot2.transform.renderer.material.color;
+
 		UpdateRobot ();
 	}
 
 	void OnGUI () {
 		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
-		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-
+		GUI.TextArea (new Rect (Screen.width-225, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
+		if (GUI.Button (new Rect (Screen.width-75, 70, 75, 60), "Quit")) {
+			Application.Quit();
+		}
 		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
 			theta4 -= .1f;
 			UpdateRobot ();
@@ -116,13 +149,17 @@ public class Main : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) 
 		{
-			if (currentJoint < 2)
+			if (currentJoint < 2) {
 				currentJoint++;
+				ChangeJointColor();
+			}
 		}
 		if (Input.GetKeyDown (KeyCode.DownArrow)) 
 		{
-			if (currentJoint > 0)
+			if (currentJoint > 0) {
 				currentJoint--;
+				ChangeJointColor();
+			}
 		}
 		if (Input.GetKey (KeyCode.LeftArrow)) {
 			switch(currentJoint) {
