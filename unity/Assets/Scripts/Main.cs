@@ -28,12 +28,37 @@ public class Main : MonoBehaviour {
 	static Matrix T23Matrix;
 	static Matrix T34Matrix;
 
+	static GameObject Pivot1;
+	static GameObject Pivot2;
+
 	static GameObject Slider;
 	static GameObject LowerArm;
 	static GameObject MiddleArm;
 	static GameObject UpperArm;
 
+	static Color sliderColor;
+	static Color pivot1Color;
+	static Color pivot2Color;
+
 	static int currentJoint;
+	static string paintIndicator = "Paint Off";
+	static string inverseCoordinates = string.Empty;
+	void ChangeJointColor()
+	{
+		Slider.transform.renderer.material.color = sliderColor;
+		Pivot1.transform.renderer.material.color = pivot1Color;
+		Pivot2.transform.renderer.material.color = pivot2Color;
+		
+		if (currentJoint == 0) {
+			Slider.transform.renderer.material.color = Color.green;
+		}
+		else if (currentJoint == 1) {
+			Pivot1.transform.renderer.material.color = Color.green;
+		}
+		else if (currentJoint == 2) {
+			Pivot2.transform.renderer.material.color = Color.green;
+		}
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -47,7 +72,16 @@ public class Main : MonoBehaviour {
 		MiddleArm = GameObject.Find ("MiddleArm");
 		UpperArm = GameObject.Find ("UpperArm");
 
+		Pivot1 = GameObject.Find ("Pivot1");
+		Pivot2 = GameObject.Find ("Pivot2");
+		
+		sliderColor = Slider.transform.renderer.material.color;
+		pivot1Color = Pivot1.transform.renderer.material.color;
+		pivot2Color = Pivot2.transform.renderer.material.color;
+
+		ChangeJointColor ();
 		UpdateRobot ();
+		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 	}
 
 	void OnGUI () {
@@ -86,43 +120,60 @@ public class Main : MonoBehaviour {
 			UpdateRobot ();
 		}
 
-		if (GUI.Button (new Rect (10,246,60,60), "Paint")) {
+		if (GUI.Button (new Rect (10,246,80,60), paintIndicator))  {
+			if (paintToggle)
+			{
+				paintIndicator = "Paint On";
+			}
+			else
+			{
+				paintIndicator = "Paint Off";
+			}
 			paintToggle = !paintToggle;
 			Paint ();
+		}
+
+		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
+		//X is Z in our case
+		if (GUI.Button (new Rect (10,308,60,60), "X-")) {
+			Link3TopVec[2][0]-=.01f;
+			InverseKineUpdate();
+		}
+
+		if (GUI.Button (new Rect (72,308,60,60), "X+")) {
+			Link3TopVec[2][0]+=.01f;
+			InverseKineUpdate();
+		}
+
+		if (GUI.Button (new Rect (10,370,60,60), "Y-")) {
+			Link3TopVec[1][0]-=.01f;
+			InverseKineUpdate();
+		}
+		
+		if (GUI.Button (new Rect (72,370,60,60), "Y+")) {
+			Link3TopVec[1][0]+=.01f;
+			InverseKineUpdate();
 		}
 	}
 
 	// Update is called once per frame
 	void Update () {
-		/*
-		//Handles movig the camera for debugging.
-		if (Input.GetKey (KeyCode.LeftArrow)) {
-			transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z-10*Time.deltaTime);
-		}
-		else if (Input.GetKey (KeyCode.RightArrow))
-		{
-			transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z+10*Time.deltaTime);
-		}
-
-		if (Input.GetKey (KeyCode.DownArrow))
-		{
-			transform.position = new Vector3(transform.position.x+10*Time.deltaTime, transform.position.y, transform.position.z);
-		}
-		else if (Input.GetKey (KeyCode.UpArrow))
-		{
-			transform.position = new Vector3(transform.position.x-10*Time.deltaTime, transform.position.y, transform.position.z);
-		}
-		*/
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) 
 		{
 			if (currentJoint < 2)
+			{
 				currentJoint++;
+				ChangeJointColor ();
+			}
 		}
 		if (Input.GetKeyDown (KeyCode.DownArrow)) 
 		{
 			if (currentJoint > 0)
+			{
 				currentJoint--;
+				ChangeJointColor ();
+			}
 		}
 		if (Input.GetKey (KeyCode.LeftArrow)) {
 			switch(currentJoint) {
@@ -146,7 +197,7 @@ public class Main : MonoBehaviour {
 		if (Input.GetKey (KeyCode.RightArrow)) {
 			switch(currentJoint) {
 			case 0:
-				if(d > -4.9f) {
+				if(d < 4.9f) {
 					d += .025f;
 					UpdateRobot ();
 				}
@@ -163,10 +214,7 @@ public class Main : MonoBehaviour {
 			}
 		}
 		if (Input.GetKey (KeyCode.Space))
-						paintToggle = true;
-				else
-						paintToggle = false;
-
+						Paint();
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
@@ -208,6 +256,21 @@ public class Main : MonoBehaviour {
 	void Paint()
 	{
 		Instantiate (Resources.Load ("PaintDot"), new Vector3(Link3TopVec[0][0]-.5f, Link3TopVec[1][0], Link3TopVec[2][0]), new Quaternion ());
+	}
+
+	void InverseKineUpdate()
+	{
+		//L1 and L3 are going to be found by Paul and Daniel.
+		float L1 = 0;
+		float L2 = 0;
+		float L3 = 0;
+		float Alpha = 0; //The angle from the horizontal of the end effector
+		float Zn = Link3TopVec[2][0];
+		float Yn = Link3TopVec[1][0];
+		theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
+		theta4 = Alpha - Mathf.PI / 2 - theta3;
+		d = Zn + L2 * Mathf.Sin (theta3) + L3 * Mathf.Sin (3 * Mathf.PI / 2 - Alpha);
+		UpdateRobot ();
 	}
 
 	void UpdateRobot()
@@ -254,6 +317,8 @@ public class Main : MonoBehaviour {
 		SetTransform (LowerArmMatrix, LowerArm, Link1CenterM, null);
 		SetTransform (MiddleArmMatrix, MiddleArm, Link2CenterM, Link2TopVec);
 		SetTransform (UpperArmMatrix, UpperArm, Link3CenterM, Link3TopVec);
+
+		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 
 		if (paintToggle) 
 		{
