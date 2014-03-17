@@ -43,7 +43,9 @@ public class Main : MonoBehaviour {
 	static int currentJoint;
 	static string paintIndicator = "Paint Off";
 	static string inverseCoordinates = string.Empty;
-	void ChangeJointColor()
+
+	/*
+	  void ChangeJointColor()
 	{
 		Slider.transform.renderer.material.color = sliderColor;
 		Pivot1.transform.renderer.material.color = pivot1Color;
@@ -59,6 +61,7 @@ public class Main : MonoBehaviour {
 			Pivot2.transform.renderer.material.color = Color.green;
 		}
 	}
+	*/
 
 	// Use this for initialization
 	void Start () {
@@ -75,19 +78,19 @@ public class Main : MonoBehaviour {
 		Pivot1 = GameObject.Find ("Pivot1");
 		Pivot2 = GameObject.Find ("Pivot2");
 		
-		sliderColor = Slider.transform.renderer.material.color;
-		pivot1Color = Pivot1.transform.renderer.material.color;
-		pivot2Color = Pivot2.transform.renderer.material.color;
+		//sliderColor = Slider.transform.renderer.material.color;
+		//pivot1Color = Pivot1.transform.renderer.material.color;
+		//pivot2Color = Pivot2.transform.renderer.material.color;
 
-		ChangeJointColor ();
+		//ChangeJointColor ();
 		UpdateRobot ();
 		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 	}
 
 	void OnGUI () {
 		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
-		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-
+		//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
+		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
 		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
 			theta4 -= .1f;
 			UpdateRobot ();
@@ -158,7 +161,7 @@ public class Main : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-
+		/*
 		if (Input.GetKeyDown (KeyCode.UpArrow)) 
 		{
 			if (currentJoint < 2)
@@ -213,6 +216,28 @@ public class Main : MonoBehaviour {
 				
 			}
 		}
+		*/
+		if (Input.GetKeyDown (KeyCode.UpArrow)) {
+			Link3TopVec[1][0]+=.01f;
+			InverseKineUpdate();
+			print("Pushed Up Arrow");
+		}
+		if (Input.GetKeyDown (KeyCode.DownArrow)) {
+			Link3TopVec[1][0]-=.01f;
+			InverseKineUpdate();
+			print("Pushed Down Arrow");
+		}
+		if (Input.GetKey (KeyCode.LeftArrow)) {
+			Link3TopVec[2][0]-=.01f;
+			InverseKineUpdate();
+			print("Pushed Left Arrow");
+		}
+		if (Input.GetKey (KeyCode.RightArrow)) {
+			Link3TopVec[2][0]+=.01f;
+			InverseKineUpdate();
+			print("Pushed Right Arrow");
+		}
+
 		if (Input.GetKey (KeyCode.Space))
 						Paint();
 	}
@@ -267,9 +292,9 @@ public class Main : MonoBehaviour {
 		float Alpha = 0; //The angle from the horizontal of the end effector
 		float Zn = Link3TopVec[2][0];
 		float Yn = Link3TopVec[1][0];
-		theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
-		theta4 = Alpha - Mathf.PI / 2 - theta3;
-		d = Zn + L2 * Mathf.Sin (theta3) + L3 * Mathf.Sin (3 * Mathf.PI / 2 - Alpha);
+		//theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
+		//theta4 = Alpha - Mathf.PI / 2 - theta3;
+		//d = Zn + L2 * Mathf.Sin (theta3) + L3 * Mathf.Sin (3 * Mathf.PI / 2 - Alpha);
 		UpdateRobot ();
 	}
 
