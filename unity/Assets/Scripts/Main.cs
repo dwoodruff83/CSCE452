@@ -290,7 +290,9 @@ public class Main : MonoBehaviour {
 		float L2 = 2;
 		float L3 = 1.6f;
 		//float Alpha = Mathf.PI/2; //The angle from the horizontal of the end effector
-		float Alpha = ((Mathf.PI / 180) * UpperArm.transform.eulerAngles.z);
+		float AlphaDegrees = (UpperArm.transform.eulerAngles.z + 90) % 360;
+
+		float Alpha = ((Mathf.PI / 180) * AlphaDegrees);
 		float Zn = Link3TopVec[2][0];
 		float Yn = Link3TopVec[1][0];
 		//theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
