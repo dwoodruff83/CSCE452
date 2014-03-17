@@ -286,10 +286,10 @@ public class Main : MonoBehaviour {
 	void InverseKineUpdate()
 	{
 		//L1 and L3 are going to be found by Paul and Daniel.
-		float L1 = 0;
-		float L2 = 0;
-		float L3 = 0;
-		float Alpha = 0; //The angle from the horizontal of the end effector
+		float L1 = 3;
+		float L2 = 2;
+		float L3 = 1.6f;
+		float Alpha = Mathf.PI/2; //The angle from the horizontal of the end effector
 		float Zn = Link3TopVec[2][0];
 		float Yn = Link3TopVec[1][0];
 		//theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
