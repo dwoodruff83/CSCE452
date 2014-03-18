@@ -284,11 +284,11 @@ public class Main : MonoBehaviour {
 
 		if (NewDistance > 3.6f) 
 		{
-			if (Zn < orgZn)
+			if (Zn < orgZn && d > 0)
 			{
 				d -= Mathf.Abs(Zn - FirstZn);
 			}
-			else if (Zn > orgZn)
+			else if (Zn > orgZn && d < 9.8)
 			{
 				d += Mathf.Abs(Zn - FirstZn);
 			}
