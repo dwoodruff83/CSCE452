@@ -2,19 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CircleIntersect
-{
-	public CircleIntersect()
-	{
-
-	}
-
-	public float xi;
-	public float yi;
-	public float xi_prime;
-	public float yi_prime;
-}
-
 public class Main : MonoBehaviour {
 
 	static bool paintToggle = false;
@@ -289,33 +276,31 @@ public class Main : MonoBehaviour {
 		float L1 = 3;
 		float L2 = 2;
 		float L3 = 1.6f;
-		float orgZn = Link3TopVec[2][0];
-		float orgYn = Link3TopVec[1][0];
-		float midD = d;
+		float orgZn = Link1TopVec[2][0];
+		float orgYn = Link1TopVec[1][0];
+		float FirstZn = Link3TopVec [2] [0];
 
 		float NewDistance = Mathf.Sqrt ((Zn - d) * (Zn - d) + (Yn - L1) * (Yn - L1));
 
-		/*if (NewDistance > 3.6f) 
+		if (NewDistance > 3.6f) 
 		{
-			if ((Zn - orgZn) < 0)
+			if (Zn < orgZn)
 			{
-				d -= .01f;
+				d -= Mathf.Abs(Zn - FirstZn);
 			}
-			else if ((Zn - orgZn) > 0)
+			else if (Zn > orgZn)
 			{
-				d += .01f;
+				d += Mathf.Abs(Zn - FirstZn);
 			}
-		}*/
+		}
 
 		float newT3 = theta3;
 		float newT4 = theta4;
 
 		newT4 = Mathf.Acos (((Zn-d)*(Zn-d) + (Yn - L1)*(Yn - L1) - L2*L2 - L3*L3)/(2*L2*L3));
-		float r = Mathf.Sqrt ((Mathf.Cos (theta4) * L3 + L2) * (Mathf.Cos (theta4) * L3 + L2) + (Yn - L1) * (Yn - L1));
-		//d = Zn - Mathf.Sqrt (r * r - (Yn - L1) * (Yn - L1));
+		//float r = Mathf.Sqrt ((Mathf.Cos (newT4) * L3 + L2) * (Mathf.Cos (newT4) * L3 + L2) + (Yn - L1) * (Yn - L1));
 		float alpha = Mathf.Atan2 (Yn - L1, Zn - d);
-		float gamma = Mathf.Asin (L3 * Mathf.Sin (180 - theta4)/r);
-			//Mathf.Atan2 (L3 * Mathf.Sin (theta4), L2 + L3 * Mathf.Cos (theta4));
+		float gamma = Mathf.Atan2 (L3 * Mathf.Sin (newT4), L2 + L3 * Mathf.Cos (newT4));
 		newT3 = Mathf.PI / 2 + gamma - alpha;
 
 		if (!float.IsNaN (newT3) && !float.IsNaN (newT4))
