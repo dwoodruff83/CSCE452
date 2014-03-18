@@ -2,6 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public class CircleIntersect
+{
+	public CircleIntersect()
+	{
+
+	}
+
+	public float xi;
+	public float yi;
+	public float xi_prime;
+	public float yi_prime;
+}
+
 public class Main : MonoBehaviour {
 
 	static bool paintToggle = false;
@@ -112,13 +125,13 @@ public class Main : MonoBehaviour {
 		}
 
 		if (GUI.Button (new Rect (10,184,60,60), "Slider\nLeft")) {
-			if(d > -4.9f)
+			if(d > 0f)
 				d -= .1f;
 			UpdateRobot ();
 		}
 		
 		if (GUI.Button (new Rect (72,184,60,60), "Slider\nRight")) {
-			if(d < 4.9f)
+			if(d < 9.8f)
 				d += .1f;
 			UpdateRobot ();
 		}
@@ -139,23 +152,19 @@ public class Main : MonoBehaviour {
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
 		//X is Z in our case
 		if (GUI.Button (new Rect (10,308,60,60), "X-")) {
-			Link3TopVec[2][0]-=.01f;
-			InverseKineUpdate();
+			InverseKineUpdate(Link3TopVec[2][0]-.01f, Link3TopVec[1][0]);
 		}
 
 		if (GUI.Button (new Rect (72,308,60,60), "X+")) {
-			Link3TopVec[2][0]+=.01f;
-			InverseKineUpdate();
+			InverseKineUpdate(Link3TopVec[2][0]+.01f, Link3TopVec[1][0]);
 		}
 
 		if (GUI.Button (new Rect (10,370,60,60), "Y-")) {
-			Link3TopVec[1][0]-=.01f;
-			InverseKineUpdate();
+			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.01f);
 		}
 		
 		if (GUI.Button (new Rect (72,370,60,60), "Y+")) {
-			Link3TopVec[1][0]+=.01f;
-			InverseKineUpdate();
+			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.01f);
 		}
 	}
 
@@ -218,24 +227,16 @@ public class Main : MonoBehaviour {
 		}
 		*/
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			Link3TopVec[1][0]+=.01f;
-			InverseKineUpdate();
-			print("Pushed Up Arrow");
+			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.01f);
 		}
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			Link3TopVec[1][0]-=.01f;
-			InverseKineUpdate();
-			print("Pushed Down Arrow");
+			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.01f);
 		}
 		if (Input.GetKey (KeyCode.LeftArrow)) {
-			Link3TopVec[2][0]-=.01f;
-			InverseKineUpdate();
-			print("Pushed Left Arrow");
+			InverseKineUpdate(Link3TopVec[2][0]-.01f, Link3TopVec[1][0]);
 		}
 		if (Input.GetKey (KeyCode.RightArrow)) {
-			Link3TopVec[2][0]+=.01f;
-			InverseKineUpdate();
-			print("Pushed Right Arrow");
+			InverseKineUpdate(Link3TopVec[2][0]+.01f, Link3TopVec[1][0]);
 		}
 
 		if (Input.GetKey (KeyCode.Space))
@@ -283,21 +284,46 @@ public class Main : MonoBehaviour {
 		Instantiate (Resources.Load ("PaintDot"), new Vector3(Link3TopVec[0][0]-.5f, Link3TopVec[1][0], Link3TopVec[2][0]), new Quaternion ());
 	}
 
-	void InverseKineUpdate()
+	void InverseKineUpdate(float Zn, float Yn)
 	{
-		//L1 and L3 are going to be found by Paul and Daniel.
 		float L1 = 3;
 		float L2 = 2;
 		float L3 = 1.6f;
-		//float Alpha = Mathf.PI/2; //The angle from the horizontal of the end effector
-		float AlphaDegrees = (UpperArm.transform.eulerAngles.z + 90) % 360;
+		float orgZn = Link3TopVec[2][0];
+		float orgYn = Link3TopVec[1][0];
+		float midD = d;
 
-		float Alpha = ((Mathf.PI / 180) * AlphaDegrees);
-		float Zn = Link3TopVec[2][0];
-		float Yn = Link3TopVec[1][0];
-		//theta3 = Mathf.Acos (((-1) * L1 - L3 * Mathf.Cos ((3 * Mathf.PI / 2) - Alpha) - Yn) / L2);
-		//theta4 = Alpha - Mathf.PI / 2 - theta3;
-		//d = Zn + L2 * Mathf.Sin (theta3) + L3 * Mathf.Sin (3 * Mathf.PI / 2 - Alpha);
+		float NewDistance = Mathf.Sqrt ((Zn - d) * (Zn - d) + (Yn - L1) * (Yn - L1));
+
+		/*if (NewDistance > 3.6f) 
+		{
+			if ((Zn - orgZn) < 0)
+			{
+				d -= .01f;
+			}
+			else if ((Zn - orgZn) > 0)
+			{
+				d += .01f;
+			}
+		}*/
+
+		float newT3 = theta3;
+		float newT4 = theta4;
+
+		newT4 = Mathf.Acos (((Zn-d)*(Zn-d) + (Yn - L1)*(Yn - L1) - L2*L2 - L3*L3)/(2*L2*L3));
+		float r = Mathf.Sqrt ((Mathf.Cos (theta4) * L3 + L2) * (Mathf.Cos (theta4) * L3 + L2) + (Yn - L1) * (Yn - L1));
+		//d = Zn - Mathf.Sqrt (r * r - (Yn - L1) * (Yn - L1));
+		float alpha = Mathf.Atan2 (Yn - L1, Zn - d);
+		float gamma = Mathf.Asin (L3 * Mathf.Sin (180 - theta4)/r);
+			//Mathf.Atan2 (L3 * Mathf.Sin (theta4), L2 + L3 * Mathf.Cos (theta4));
+		newT3 = Mathf.PI / 2 + gamma - alpha;
+
+		if (!float.IsNaN (newT3) && !float.IsNaN (newT4))
+		{
+			theta3 = newT3;
+			theta4 = newT4;
+		}
+
 		UpdateRobot ();
 	}
 
