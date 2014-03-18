@@ -139,19 +139,19 @@ public class Main : MonoBehaviour {
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
 		//X is Z in our case
 		if (GUI.Button (new Rect (10,308,60,60), "X-")) {
-			InverseKineUpdate(Link3TopVec[2][0]-.01f, Link3TopVec[1][0]);
+			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
 		}
 
 		if (GUI.Button (new Rect (72,308,60,60), "X+")) {
-			InverseKineUpdate(Link3TopVec[2][0]+.01f, Link3TopVec[1][0]);
+			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
 		}
 
 		if (GUI.Button (new Rect (10,370,60,60), "Y-")) {
-			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.01f);
+			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
 		}
 		
 		if (GUI.Button (new Rect (72,370,60,60), "Y+")) {
-			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.01f);
+			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
 		}
 	}
 
@@ -213,17 +213,17 @@ public class Main : MonoBehaviour {
 			}
 		}
 		*/
-		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.01f);
+		if (Input.GetKey (KeyCode.UpArrow)) {
+			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
 		}
-		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.01f);
+		if (Input.GetKey (KeyCode.DownArrow)) {
+			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
 		}
 		if (Input.GetKey (KeyCode.LeftArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0]-.01f, Link3TopVec[1][0]);
+			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
 		}
 		if (Input.GetKey (KeyCode.RightArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0]+.01f, Link3TopVec[1][0]);
+			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
 		}
 
 		if (Input.GetKey (KeyCode.Space))
@@ -276,32 +276,43 @@ public class Main : MonoBehaviour {
 		float L1 = 3;
 		float L2 = 2;
 		float L3 = 1.6f;
+		if (Yn > 6.6f) {
+						Yn = 6.6f;
+				} else if (Yn < L1 - L2 + L3)
+			{
+			Yn = L1 - L2 + L3;
+				}
 		float orgZn = Link1TopVec[2][0];
 		float orgYn = Link1TopVec[1][0];
 		float FirstZn = Link3TopVec [2] [0];
 
-		float NewDistance = Mathf.Sqrt ((Zn - d) * (Zn - d) + (Yn - L1) * (Yn - L1));
+		float NewDistance = Mathf.Sqrt ((Zn - orgZn) * (Zn - orgZn) + (Yn - orgYn) * (Yn - orgYn));
 
-		if (NewDistance > 3.6f) 
+		/*if (NewDistance > 3.6f) 
 		{
-			if (Zn < orgZn && d > 0)
+			if (Zn < orgZn)
 			{
 				d -= Mathf.Abs(Zn - FirstZn);
 			}
-			else if (Zn > orgZn && d < 9.8)
+			else if (Zn > orgZn)
 			{
 				d += Mathf.Abs(Zn - FirstZn);
 			}
-		}
+		}*/
 
 		float newT3 = theta3;
 		float newT4 = theta4;
 
-		newT4 = Mathf.Acos (((Zn-d)*(Zn-d) + (Yn - L1)*(Yn - L1) - L2*L2 - L3*L3)/(2*L2*L3));
+		//newT4 = Mathf.Acos (((Zn-d)*(Zn-d) + (Yn - L1)*(Yn - L1) - L2*L2 - L3*L3)/(2*L2*L3));
 		//float r = Mathf.Sqrt ((Mathf.Cos (newT4) * L3 + L2) * (Mathf.Cos (newT4) * L3 + L2) + (Yn - L1) * (Yn - L1));
-		float alpha = Mathf.Atan2 (Yn - L1, Zn - d);
-		float gamma = Mathf.Atan2 (L3 * Mathf.Sin (newT4), L2 + L3 * Mathf.Cos (newT4));
-		newT3 = Mathf.PI / 2 + gamma - alpha;
+		//float alpha = Mathf.Atan2 (Yn - L1, Zn - d);
+		//float gamma = Mathf.Atan2 (L3 * Mathf.Sin (newT4), L2 + L3 * Mathf.Cos (newT4));
+		//newT3 = Mathf.PI / 2 + gamma - alpha;
+
+		float alpha = Mathf.PI/2;
+		newT3 = (Mathf.Acos ((Yn - L1 - L3*Mathf.Cos (Mathf.PI/2 - alpha)) / L2));
+		newT4 = (Mathf.PI / 2 - newT3 - alpha);
+		d = Zn - L2 * Mathf.Sin (newT3) - L3 * Mathf.Sin (newT3 + newT4);
 
 		if (!float.IsNaN (newT3) && !float.IsNaN (newT4))
 		{
