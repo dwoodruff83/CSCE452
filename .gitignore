@@ -21,7 +21,7 @@ x64/
 *_p.c
 *.ilk
 #*.meta
-*.obj
+#*.obj
 *.pch
 *.pdb
 *.pgc
