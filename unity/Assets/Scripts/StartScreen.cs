@@ -1,13 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public static class NetworkData
+{
+	public static bool isServer = false;
+	public static string ipAddressString = string.Empty;
+	public static string portString = string.Empty;
+}
+
 public class StartScreen : MonoBehaviour {
 
 	public enum selectedControl {ipAddress, port, none};
 	selectedControl focus = selectedControl.none;
-	static bool IsServer = false;
-	static string ipAddressString = string.Empty;
-	static string portString = string.Empty;
+	float inputTimeout = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -16,16 +21,35 @@ public class StartScreen : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		//if (Input.GetMouseButton (0)) {
-		//	focus = selectedControl.none;
-		//		}
+
+		if (inputTimeout > 0) {
+			inputTimeout -= Time.deltaTime;
+		} else if (inputTimeout <= 0) {
+			focus = selectedControl.none;
+		}
 		string input = getKeyboardInput ();
-		if (getKeyboardInput() != string.Empty) {
-			Debug.Log ("INSIDE");
+		if (input != string.Empty) {
+			inputTimeout = 2;
 						if (focus == selectedControl.ipAddress) {
-				Debug.Log (input);
+							if (input == "b")
+							{
+								if (NetworkData.ipAddressString.Length > 0)
+									NetworkData.ipAddressString = NetworkData.ipAddressString.Remove (NetworkData.ipAddressString.Length-1,1);
+							}
+							else
+							{
+								NetworkData.ipAddressString += input;
+							}
 						} else if (focus == selectedControl.port) {
-				Debug.Log (input);
+							if (input == "b")
+							{
+								if (NetworkData.portString.Length > 0)
+									NetworkData.portString = NetworkData.portString.Remove (NetworkData.portString.Length-1,1);
+							}
+							else
+							{
+								NetworkData.portString += input;
+							}
 						}
 				}
 	}
@@ -80,18 +104,24 @@ public class StartScreen : MonoBehaviour {
 
 
 		GUI.TextArea (new Rect (0, 0, 160, 20), "PencilBot - Team Alpha");
+		GUI.TextArea (new Rect (376, 300, 80, 20), "IPAddress:");
+		GUI.TextArea (new Rect (356, 320, 100, 40), "Port Number: \nClick and Type");
 
 		if (GUI.Button (new Rect (256,360,100,100), "START\n SERVER")) {
-
+			NetworkData.isServer = true;
+			Application.LoadLevel("PencilBot");
 		}
 		if (GUI.Button (new Rect (456,360,100,100), "START\n CLIENT")) {
-			
+			NetworkData.isServer = false;
+			Application.LoadLevel("PencilBot");
 		}
-		if (GUI.Button (new Rect (456,320,160,20), ipAddressString)) {
+		if (GUI.Button (new Rect (456,300,160,20), NetworkData.ipAddressString)) {
 			focus = selectedControl.ipAddress;
+			inputTimeout = 5;
 		}
-		if (GUI.Button (new Rect (456,340,160,20), portString)) {
+		if (GUI.Button (new Rect (456,320,160,20), NetworkData.portString)) {
 			focus = selectedControl.port;
+			inputTimeout = 5;
 		}
 		}
 }

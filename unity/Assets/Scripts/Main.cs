@@ -65,6 +65,11 @@ public class Main : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		//THIS IS HOW YOU ACCESS THE INFORMATION ACQUIRED FROM THE FIRST SCENE.
+		Debug.Log (NetworkData.isServer);
+		Debug.Log (NetworkData.ipAddressString);
+		Debug.Log (NetworkData.portString);
+
 		d = 0;
 		theta3 = 0;
 		theta4 = 0;
