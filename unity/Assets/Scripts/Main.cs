@@ -44,8 +44,25 @@ public class Main : MonoBehaviour {
 	static string paintIndicator = "Paint Off";
 	static string inverseCoordinates = string.Empty;
 
-	/*
-	  void ChangeJointColor()
+	const string topCCW = "topCCW";
+	const string topCW  = "topCW";
+	const string midCCW = "midCCW";
+	const string midCW  = "midCW";
+	const string sldLT  = "sldrLT";
+	const string sldRT  = "sldrRT";
+	const string Xminus = "x-";
+	const string Xplus  = "x+";
+	const string Yminus = "y-";
+	const string Yplus  = "y+";
+	const string quit = "q";
+	const string clear = "c";
+	const string pnt = "p";
+
+	static bool isServer;
+	static string ipAddressString;
+	static string portString;
+
+  	void ChangeJointColor()
 	{
 		Slider.transform.renderer.material.color = sliderColor;
 		Pivot1.transform.renderer.material.color = pivot1Color;
@@ -61,14 +78,18 @@ public class Main : MonoBehaviour {
 			Pivot2.transform.renderer.material.color = Color.green;
 		}
 	}
-	*/
+
 
 	// Use this for initialization
 	void Start () {
 		//THIS IS HOW YOU ACCESS THE INFORMATION ACQUIRED FROM THE FIRST SCENE.
-		Debug.Log (NetworkData.isServer);
-		Debug.Log (NetworkData.ipAddressString);
-		Debug.Log (NetworkData.portString);
+		//Debug.Log (NetworkData.isServer);
+		//Debug.Log (NetworkData.ipAddressString);
+		//Debug.Log (NetworkData.portString);
+
+		isServer = NetworkData.isServer;
+		ipAddressString = NetworkData.ipAddressString;
+		portString = NetworkData.portString;
 
 		d = 0;
 		theta3 = 0;
@@ -83,52 +104,62 @@ public class Main : MonoBehaviour {
 		Pivot1 = GameObject.Find ("Pivot1");
 		Pivot2 = GameObject.Find ("Pivot2");
 		
-		//sliderColor = Slider.transform.renderer.material.color;
-		//pivot1Color = Pivot1.transform.renderer.material.color;
-		//pivot2Color = Pivot2.transform.renderer.material.color;
+		sliderColor = Slider.transform.renderer.material.color;
+		pivot1Color = Pivot1.transform.renderer.material.color;
+		pivot2Color = Pivot2.transform.renderer.material.color;
 
-		//ChangeJointColor ();
+		ChangeJointColor ();
 		UpdateRobot ();
 		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 	}
 
-	void OnGUI () {
-		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
-		//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
-		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
+	void DoAction (string action) {
+		switch(action) {
+		case topCCW:
 			theta4 -= .1f;
 			UpdateRobot ();
-		}
-
-		if (GUI.Button (new Rect (72,60,60,60), "Upper\nC")) {
+			break;
+		case topCW:
 			theta4 += .1f;
 			UpdateRobot ();
-		}
-
-		if (GUI.Button (new Rect (10,122,60,60), "Middle\nCC")) {
+			break;
+		case midCCW:
 			theta3 -= .1f;
 			UpdateRobot ();
-		}
-		
-		if (GUI.Button (new Rect (72,122,60,60), "Middle\nC")) {
+			break;
+		case midCW:
 			theta3 += .1f;
 			UpdateRobot ();
-		}
-
-		if (GUI.Button (new Rect (10,184,60,60), "Slider\nLeft")) {
+			break;
+		case sldLT:
 			if(d > 0f)
 				d -= .1f;
 			UpdateRobot ();
-		}
-		
-		if (GUI.Button (new Rect (72,184,60,60), "Slider\nRight")) {
+			break;
+		case sldRT:
 			if(d < 9.8f)
 				d += .1f;
 			UpdateRobot ();
-		}
+			break;
+		case Xminus:
+			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
+			break;
+		case Xplus:
+			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
+			break;
+		case Yminus:
+			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
+			break;
+		case Yplus:
+			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
+			break;
+		case quit:
+			//
+			break;
+		case clear:
 
-		if (GUI.Button (new Rect (10,246,80,60), paintIndicator))  {
+			break;
+		case pnt:
 			if (paintToggle)
 			{
 				paintIndicator = "Paint On";
@@ -139,6 +170,46 @@ public class Main : MonoBehaviour {
 			}
 			paintToggle = !paintToggle;
 			Paint ();
+			break;
+		default:
+
+			break;
+		}
+	}
+
+	void OnGUI () {
+		if (isServer) {
+			// show only server GUI info
+		}
+		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
+		//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
+		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
+		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
+			DoAction(topCCW);
+		}
+
+		if (GUI.Button (new Rect (72,60,60,60), "Upper\nC")) {
+			DoAction (topCW);
+		}
+
+		if (GUI.Button (new Rect (10,122,60,60), "Middle\nCC")) {
+			DoAction(midCCW);
+		}
+		
+		if (GUI.Button (new Rect (72,122,60,60), "Middle\nC")) {
+			DoAction(midCW);
+		}
+
+		if (GUI.Button (new Rect (10,184,60,60), "Slider\nLeft")) {
+			DoAction(sldLT);;
+		}
+		
+		if (GUI.Button (new Rect (72,184,60,60), "Slider\nRight")) {
+			DoAction(sldRT);
+		}
+
+		if (GUI.Button (new Rect (10,246,80,60), paintIndicator))  {
+			DoAction(pnt);
 		}
 
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
@@ -161,78 +232,61 @@ public class Main : MonoBehaviour {
 	}
 
 	// Update is called once per frame
+	void KeyboardControls() {
+
+	}
 	void Update () {
-		/*
-		if (Input.GetKeyDown (KeyCode.UpArrow)) 
-		{
-			if (currentJoint < 2)
-			{
-				currentJoint++;
-				ChangeJointColor ();
-			}
+		if (Input.GetKey("1")) {
+			currentJoint = 0;
+			ChangeJointColor();
 		}
-		if (Input.GetKeyDown (KeyCode.DownArrow)) 
-		{
-			if (currentJoint > 0)
-			{
-				currentJoint--;
-				ChangeJointColor ();
-			}
+		if (Input.GetKey("2")) {
+			currentJoint = 1;
+			ChangeJointColor();
 		}
-		if (Input.GetKey (KeyCode.LeftArrow)) {
+		if (Input.GetKey("3")) {
+			currentJoint = 2;
+			ChangeJointColor();
+		}
+		if (Input.GetKey ("a")) {
 			switch(currentJoint) {
 			case 0:
-				if(d > -4.9f) {
-					d -= .025f;
-					UpdateRobot ();
-				}
+				DoAction(sldLT);
 				break;
 			case 1:
-				theta3 -= .025f;
-				UpdateRobot ();
+				DoAction(midCCW);
 				break;
 			case 2:
-				theta4 -= .025f;
-				UpdateRobot ();
+				DoAction(topCCW);
 				break;
-
 			}
 		}
-		if (Input.GetKey (KeyCode.RightArrow)) {
+		if (Input.GetKey ("d")) {
 			switch(currentJoint) {
 			case 0:
-				if(d < 4.9f) {
-					d += .025f;
-					UpdateRobot ();
-				}
+				DoAction(sldRT);
 				break;
 			case 1:
-				theta3 += .025f;
-				UpdateRobot ();
+				DoAction(midCW);
 				break;
 			case 2:
-				theta4 += .025f;
-				UpdateRobot ();
+				DoAction(topCW);
 				break;
-				
+			
 			}
 		}
-		*/
-		if (Input.GetKey (KeyCode.UpArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
-		}
-		if (Input.GetKey (KeyCode.DownArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
-		}
-		if (Input.GetKey (KeyCode.LeftArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
-		}
-		if (Input.GetKey (KeyCode.RightArrow)) {
-			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
-		}
 
+
+		if (Input.GetKey (KeyCode.UpArrow))
+			DoAction (Yplus);
+		if (Input.GetKey (KeyCode.DownArrow))
+			DoAction(Yminus);
+		if (Input.GetKey (KeyCode.LeftArrow))
+			DoAction(Xminus);
+		if (Input.GetKey (KeyCode.RightArrow))
+			DoAction(Xplus);
 		if (Input.GetKey (KeyCode.Space))
-						Paint();
+			DoAction(pnt);
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
