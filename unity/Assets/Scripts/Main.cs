@@ -67,6 +67,7 @@ public class Main : MonoBehaviour {
 	static string ipAddressString;
 	static string portString;
 	TcpClient tcpClient;
+	int timeDelay = 2;
 
   	void ChangeJointColor()
 	{
@@ -102,14 +103,7 @@ public class Main : MonoBehaviour {
 		isServer = NetworkData.isServer;
 		ipAddressString = NetworkData.ipAddressString;
 		portString = NetworkData.portString;
-		
-		if (isServer) {
-			//init server
-		} else {
-			//init client
-			tcpClient.Connect(ipAddressString,int.TryParse(portString));
-		}
-
+	
 		d = 0;
 		theta3 = 0;
 		theta4 = 0;
@@ -130,12 +124,21 @@ public class Main : MonoBehaviour {
 		ChangeJointColor ();
 		UpdateRobot ();
 		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
+
+		if (isServer) {
+			//init server
+		} else {
+			//init client
+			tcpClient.Connect(ipAddressString,int.Parse(portString));
+		}
 	}
 
 	void DoAction (string action) {
-		//
-		//  add delay here
-		//
+		if (!isServer) {
+			//
+			//  add delay here
+			//
+		}
 		switch (action) {
 		case topCCW:
 			theta4 -= .1f;
@@ -176,7 +179,8 @@ public class Main : MonoBehaviour {
 			InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] + .05f);
 			break;
 		case quit:
-			// add quit button maybe
+			// add quit button
+			//tcpClient.Close();
 			break;
 		case clear:
 			// add clear button maybe
@@ -202,50 +206,59 @@ public class Main : MonoBehaviour {
 			GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
 			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC")) {
 				DoAction (topCCW);
-				sendCommand (topCCW);
+				SendCommand (topCCW);
 			}
 
 			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC")) {
 				DoAction (topCW);
+				SendCommand (topCW);
 			}
 
 			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC")) {
 				DoAction (midCCW);
+				SendCommand (midCCW);
 			}
 			
 			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC")) {
 				DoAction (midCW);
+				SendCommand (midCW);
 			}
 
 			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft")) {
 				DoAction (sldLT);
-				;
+				SendCommand (sldLT);
 			}
 			
 			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight")) {
 				DoAction (sldRT);
+				SendCommand(sldRT);
 			}
 
 			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator)) {
 				DoAction (pnt);
+				SendCommand(pnt);
 			}
 
 			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
 			//X is Z in our case
 			if (GUI.Button (new Rect (10, 308, 60, 60), "X-")) {
-				InverseKineUpdate (Link3TopVec [2] [0] - .05f, Link3TopVec [1] [0]);
+				DoAction (Xminus);
+				SendCommand (Xminus);
 			}
 
 			if (GUI.Button (new Rect (72, 308, 60, 60), "X+")) {
-				InverseKineUpdate (Link3TopVec [2] [0] + .05f, Link3TopVec [1] [0]);
+				DoAction(Xplus);
+				SendCommand (Xplus);
 			}
 
 			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-")) {
-				InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] - .05f);
+				DoAction(Yminus);
+				SendCommand(Yminus);
 			}
 			
 			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+")) {
-				InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] + .05f);
+				DoAction (Yplus);
+				SendCommand (Yplus);
 			}
 			// display client info
 		} else {
