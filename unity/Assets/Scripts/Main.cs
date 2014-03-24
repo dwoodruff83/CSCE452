@@ -99,7 +99,7 @@ public class Main : MonoBehaviour {
 	}
 
 	//get local IP address of server
-	/*public string LocalIPAddress()
+	public string LocalIPAddress()
 	{
 		IPHostEntry host;
 		string localIP = "";
@@ -113,7 +113,7 @@ public class Main : MonoBehaviour {
 			}
 		}
 		return localIP;
-	}*/
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -150,22 +150,23 @@ public class Main : MonoBehaviour {
 		//string localIP;
 
 		if (isServer) {
+			Debug.Log ("isServer");
 			//init server
-			int port = 8081;
+			int port = 80;
+			string ip = "10.9.66.212";//LocalIPAddress();
+			IPAddress ipAddr = IPAddress.Parse( ip );
+			//int.TryParse( portString, port );
+			listener = new TcpListener( ipAddr, port );
+			listener.Start ();
+			sock = listener.AcceptSocket();
+			//ServerStuff ();
 
-			//if( !(System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() ))
-			
-				IPAddress ipAddr = IPAddress.Parse( "10.9.66.212" );
-				//int.TryParse( portString, port );
-				listener = new TcpListener( ipAddr, port );
-				listener.Start ();
-				sock = listener.AcceptSocket();
-				//ServerStuff ();
 
 		} else {
 			//init client
 			tcpClient.Connect(ipAddressString,int.Parse(portString));
 		}
+
 	}
 
 
@@ -217,6 +218,8 @@ public class Main : MonoBehaviour {
 		case quit:
 			// add quit button
 			//tcpClient.Close();
+			sock.Close ();
+			listener.Stop ();
 			break;
 		case clear:
 			// add clear button maybe
@@ -368,7 +371,8 @@ public class Main : MonoBehaviour {
 			if (Input.GetKey (KeyCode.Space))
 				DoAction (pnt);
 		}
-		if(isServer)
+		/*
+		else
 		{
 			if (sock.Connected) {
 				byte[] b = new byte[100];
@@ -377,13 +381,12 @@ public class Main : MonoBehaviour {
 				string command = k.ToString();
 				DoAction( command );
 				
-				if( command == "Quit" )
-					break;
+				if( command == quit )
+					DoAction( command ); 
 			}
-			
-			sock.Close ();
-			listener.Stop ();
+
 		}
+		*/
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
