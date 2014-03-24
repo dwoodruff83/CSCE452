@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Net.Sockets;
 
 public class Main : MonoBehaviour {
 
@@ -58,9 +62,11 @@ public class Main : MonoBehaviour {
 	const string clear = "c";
 	const string pnt = "p";
 
+	//-> Client / Server variables
 	static bool isServer;
 	static string ipAddressString;
 	static string portString;
+	TcpClient tcpClient;
 
   	void ChangeJointColor()
 	{
@@ -79,6 +85,12 @@ public class Main : MonoBehaviour {
 		}
 	}
 
+	void SendCommand(string command) {
+		Stream stream = tcpClient.GetStream ();
+		ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
+		byte[] byt = asciiEncoding.GetBytes (command);
+		stream.Write (byt,0,byt.Length);
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -90,6 +102,13 @@ public class Main : MonoBehaviour {
 		isServer = NetworkData.isServer;
 		ipAddressString = NetworkData.ipAddressString;
 		portString = NetworkData.portString;
+		
+		if (isServer) {
+			//init server
+		} else {
+			//init client
+			tcpClient.Connect(ipAddressString,int.TryParse(portString));
+		}
 
 		d = 0;
 		theta3 = 0;
@@ -114,7 +133,10 @@ public class Main : MonoBehaviour {
 	}
 
 	void DoAction (string action) {
-		switch(action) {
+		//
+		//  add delay here
+		//
+		switch (action) {
 		case topCCW:
 			theta4 -= .1f;
 			UpdateRobot ();
@@ -132,161 +154,158 @@ public class Main : MonoBehaviour {
 			UpdateRobot ();
 			break;
 		case sldLT:
-			if(d > 0f)
+			if (d > 0f)
 				d -= .1f;
 			UpdateRobot ();
 			break;
 		case sldRT:
-			if(d < 9.8f)
+			if (d < 9.8f)
 				d += .1f;
 			UpdateRobot ();
 			break;
 		case Xminus:
-			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
+			InverseKineUpdate (Link3TopVec [2] [0] - .05f, Link3TopVec [1] [0]);
 			break;
 		case Xplus:
-			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
+			InverseKineUpdate (Link3TopVec [2] [0] + .05f, Link3TopVec [1] [0]);
 			break;
 		case Yminus:
-			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
+			InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] - .05f);
 			break;
 		case Yplus:
-			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
+			InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] + .05f);
 			break;
 		case quit:
-			//
+			// add quit button maybe
 			break;
 		case clear:
-
+			// add clear button maybe
 			break;
 		case pnt:
-			if (paintToggle)
-			{
+			if (paintToggle) {
 				paintIndicator = "Paint On";
-			}
-			else
-			{
+			} else {
 				paintIndicator = "Paint Off";
 			}
 			paintToggle = !paintToggle;
 			Paint ();
 			break;
 		default:
-
 			break;
 		}
 	}
 
 	void OnGUI () {
-		if (isServer) {
-			// show only server GUI info
-		}
-		GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
-		//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-		GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
-		if (GUI.Button (new Rect (10,60,60,60), "Upper\nCC")) {
-			DoAction(topCCW);
-		}
-
-		if (GUI.Button (new Rect (72,60,60,60), "Upper\nC")) {
-			DoAction (topCW);
-		}
-
-		if (GUI.Button (new Rect (10,122,60,60), "Middle\nCC")) {
-			DoAction(midCCW);
-		}
-		
-		if (GUI.Button (new Rect (72,122,60,60), "Middle\nC")) {
-			DoAction(midCW);
-		}
-
-		if (GUI.Button (new Rect (10,184,60,60), "Slider\nLeft")) {
-			DoAction(sldLT);;
-		}
-		
-		if (GUI.Button (new Rect (72,184,60,60), "Slider\nRight")) {
-			DoAction(sldRT);
-		}
-
-		if (GUI.Button (new Rect (10,246,80,60), paintIndicator))  {
-			DoAction(pnt);
-		}
-
-		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
-		//X is Z in our case
-		if (GUI.Button (new Rect (10,308,60,60), "X-")) {
-			InverseKineUpdate(Link3TopVec[2][0]-.05f, Link3TopVec[1][0]);
-		}
-
-		if (GUI.Button (new Rect (72,308,60,60), "X+")) {
-			InverseKineUpdate(Link3TopVec[2][0]+.05f, Link3TopVec[1][0]);
-		}
-
-		if (GUI.Button (new Rect (10,370,60,60), "Y-")) {
-			InverseKineUpdate(Link3TopVec[2][0], Link3TopVec[1][0]-.05f);
-		}
-		
-		if (GUI.Button (new Rect (72,370,60,60), "Y+")) {
-			InverseKineUpdate(Link3TopVec[2][0],Link3TopVec[1][0]+.05f);
-		}
-	}
-
-	// Update is called once per frame
-	void KeyboardControls() {
-
-	}
-	void Update () {
-		if (Input.GetKey("1")) {
-			currentJoint = 0;
-			ChangeJointColor();
-		}
-		if (Input.GetKey("2")) {
-			currentJoint = 1;
-			ChangeJointColor();
-		}
-		if (Input.GetKey("3")) {
-			currentJoint = 2;
-			ChangeJointColor();
-		}
-		if (Input.GetKey ("a")) {
-			switch(currentJoint) {
-			case 0:
-				DoAction(sldLT);
-				break;
-			case 1:
-				DoAction(midCCW);
-				break;
-			case 2:
-				DoAction(topCCW);
-				break;
+		if (!isServer) {
+			GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
+			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
+			GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
+			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC")) {
+				DoAction (topCCW);
+				sendCommand (topCCW);
 			}
-		}
-		if (Input.GetKey ("d")) {
-			switch(currentJoint) {
-			case 0:
-				DoAction(sldRT);
-				break;
-			case 1:
-				DoAction(midCW);
-				break;
-			case 2:
-				DoAction(topCW);
-				break;
+
+			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC")) {
+				DoAction (topCW);
+			}
+
+			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC")) {
+				DoAction (midCCW);
+			}
 			
+			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC")) {
+				DoAction (midCW);
 			}
+
+			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft")) {
+				DoAction (sldLT);
+				;
+			}
+			
+			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight")) {
+				DoAction (sldRT);
+			}
+
+			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator)) {
+				DoAction (pnt);
+			}
+
+			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
+			//X is Z in our case
+			if (GUI.Button (new Rect (10, 308, 60, 60), "X-")) {
+				InverseKineUpdate (Link3TopVec [2] [0] - .05f, Link3TopVec [1] [0]);
+			}
+
+			if (GUI.Button (new Rect (72, 308, 60, 60), "X+")) {
+				InverseKineUpdate (Link3TopVec [2] [0] + .05f, Link3TopVec [1] [0]);
+			}
+
+			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-")) {
+				InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] - .05f);
+			}
+			
+			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+")) {
+				InverseKineUpdate (Link3TopVec [2] [0], Link3TopVec [1] [0] + .05f);
+			}
+			// display client info
+		} else {
+			// display server info
 		}
+	}
 
+	void Update () {
+		if (!isServer) { // controls disabled for server
+			if (Input.GetKey ("1")) {
+				currentJoint = 0;
+				ChangeJointColor ();
+			}
+			if (Input.GetKey ("2")) {
+				currentJoint = 1;
+				ChangeJointColor ();
+			}
+			if (Input.GetKey ("3")) {
+				currentJoint = 2;
+				ChangeJointColor ();
+			}
+			if (Input.GetKey ("a")) {
+				switch (currentJoint) {
+				case 0:
+					DoAction (sldLT);
+					break;
+				case 1:
+					DoAction (midCCW);
+					break;
+				case 2:
+					DoAction (topCCW);
+					break;
+				}
+			}
+			if (Input.GetKey ("d")) {
+				switch (currentJoint) {
+				case 0:
+					DoAction (sldRT);
+					break;
+				case 1:
+					DoAction (midCW);
+					break;
+				case 2:
+					DoAction (topCW);
+					break;
+				
+				}
+			}
 
-		if (Input.GetKey (KeyCode.UpArrow))
-			DoAction (Yplus);
-		if (Input.GetKey (KeyCode.DownArrow))
-			DoAction(Yminus);
-		if (Input.GetKey (KeyCode.LeftArrow))
-			DoAction(Xminus);
-		if (Input.GetKey (KeyCode.RightArrow))
-			DoAction(Xplus);
-		if (Input.GetKey (KeyCode.Space))
-			DoAction(pnt);
+			if (Input.GetKey (KeyCode.UpArrow))
+				DoAction (Yplus);
+			if (Input.GetKey (KeyCode.DownArrow))
+				DoAction (Yminus);
+			if (Input.GetKey (KeyCode.LeftArrow))
+				DoAction (Xminus);
+			if (Input.GetKey (KeyCode.RightArrow))
+				DoAction (Xplus);
+			if (Input.GetKey (KeyCode.Space))
+				DoAction (pnt);
+		}
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
