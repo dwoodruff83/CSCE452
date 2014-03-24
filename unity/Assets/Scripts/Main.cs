@@ -71,6 +71,9 @@ public class Main : MonoBehaviour {
 	TcpClient tcpClient;
 	int timeDelay = 2;
 
+	TcpListener listener;
+	Socket sock;
+
   	void ChangeJointColor()
 	{
 		Slider.transform.renderer.material.color = sliderColor;
@@ -94,6 +97,23 @@ public class Main : MonoBehaviour {
 		byte[] byt = asciiEncoding.GetBytes (command);
 		stream.Write (byt,0,byt.Length);
 	}
+
+	//get local IP address of server
+	/*public string LocalIPAddress()
+	{
+		IPHostEntry host;
+		string localIP = "";
+		host = Dns.GetHostEntry(Dns.GetHostName());
+		foreach (IPAddress ip in host.AddressList)
+		{
+			if (ip.AddressFamily == AddressFamily.InterNetwork)
+			{
+				localIP = ip.ToString();
+				break;
+			}
+		}
+		return localIP;
+	}*/
 
 	// Use this for initialization
 	void Start () {
@@ -127,13 +147,27 @@ public class Main : MonoBehaviour {
 		UpdateRobot ();
 		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 
+		//string localIP;
+
 		if (isServer) {
 			//init server
+			int port = 8081;
+
+			//if( !(System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() ))
+			
+				IPAddress ipAddr = IPAddress.Parse( "10.9.66.212" );
+				//int.TryParse( portString, port );
+				listener = new TcpListener( ipAddr, port );
+				listener.Start ();
+				sock = listener.AcceptSocket();
+				//ServerStuff ();
+
 		} else {
 			//init client
 			tcpClient.Connect(ipAddressString,int.Parse(portString));
 		}
 	}
+
 
 	void DoAction (string action) {
 		if (!isServer) {
@@ -333,6 +367,22 @@ public class Main : MonoBehaviour {
 				DoAction (Xplus);
 			if (Input.GetKey (KeyCode.Space))
 				DoAction (pnt);
+		}
+		if(isServer)
+		{
+			if (sock.Connected) {
+				byte[] b = new byte[100];
+				int k = sock.Receive (b);
+				
+				string command = k.ToString();
+				DoAction( command );
+				
+				if( command == "Quit" )
+					break;
+			}
+			
+			sock.Close ();
+			listener.Stop ();
 		}
 	}
 
