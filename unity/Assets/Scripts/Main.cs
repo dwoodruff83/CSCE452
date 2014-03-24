@@ -9,6 +9,7 @@ using System.Net.Sockets;
 public class Main : MonoBehaviour {
 
 	static bool paintToggle = false;
+	static bool delayToggle = false;
 
 	static float d;
 	static float theta3;
@@ -45,6 +46,7 @@ public class Main : MonoBehaviour {
 	static Color pivot2Color;
 
 	static int currentJoint;
+	static string delayIndicator = "Delay Off";
 	static string paintIndicator = "Paint Off";
 	static string inverseCoordinates = string.Empty;
 
@@ -186,12 +188,13 @@ public class Main : MonoBehaviour {
 			// add clear button maybe
 			break;
 		case pnt:
+			paintToggle = !paintToggle;
 			if (paintToggle) {
 				paintIndicator = "Paint On";
-			} else {
+			} 
+			else {
 				paintIndicator = "Paint Off";
 			}
-			paintToggle = !paintToggle;
 			Paint ();
 			break;
 		default:
@@ -237,6 +240,18 @@ public class Main : MonoBehaviour {
 			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator)) {
 				DoAction (pnt);
 				SendCommand(pnt);
+			}
+
+			if (GUI.Button (new Rect (90, 246, 80, 60), delayIndicator)) {
+				delayToggle = !delayToggle;
+				if(delayToggle)
+				{
+					delayIndicator = "Delay On";
+				}
+				else
+				{
+					delayIndicator = "Delay Off";
+				}
 			}
 
 			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
