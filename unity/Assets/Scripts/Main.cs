@@ -169,6 +169,11 @@ public class Main : MonoBehaviour {
 
 	}
 
+	IEnumerator DelayAction( string action )
+	{
+		yield return new WaitForSeconds (timeDelay);
+		DoAction (action);
+	}
 
 	void DoAction (string action) {
 		if (!isServer) {
@@ -245,37 +250,44 @@ public class Main : MonoBehaviour {
 			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
 			GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
 			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC")) {
-				DoAction (topCCW);
+				//DoAction (topCCW);
+				StartCoroutine( DelayAction( topCCW ) );
 				SendCommand (topCCW);
 			}
 
 			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC")) {
-				DoAction (topCW);
+				//DoAction (topCW);
+				StartCoroutine( DelayAction( topCW ) );
 				SendCommand (topCW);
 			}
 
 			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC")) {
-				DoAction (midCCW);
+				//DoAction (midCCW);
+				StartCoroutine( DelayAction( midCCW ) );
 				SendCommand (midCCW);
 			}
 			
 			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC")) {
-				DoAction (midCW);
+				//DoAction (midCW);
+				StartCoroutine( DelayAction( midCW ) );
 				SendCommand (midCW);
 			}
 
 			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft")) {
-				DoAction (sldLT);
+				//DoAction (sldLT);
+				StartCoroutine( DelayAction( sldLT ) );
 				SendCommand (sldLT);
 			}
 			
 			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight")) {
-				DoAction (sldRT);
+				//DoAction (sldRT);
+				StartCoroutine( DelayAction( sldRT ) );
 				SendCommand(sldRT);
 			}
 
 			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator)) {
-				DoAction (pnt);
+				//DoAction (pnt);
+				StartCoroutine( DelayAction( pnt ) );
 				SendCommand(pnt);
 			}
 
@@ -294,22 +306,26 @@ public class Main : MonoBehaviour {
 			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
 			//X is Z in our case
 			if (GUI.Button (new Rect (10, 308, 60, 60), "X-")) {
-				DoAction (Xminus);
+				//DoAction (Xminus);
+				StartCoroutine( DelayAction( Xminus ) );
 				SendCommand (Xminus);
 			}
 
 			if (GUI.Button (new Rect (72, 308, 60, 60), "X+")) {
-				DoAction(Xplus);
+				//DoAction(Xplus);
+				StartCoroutine( DelayAction( Xplus ) );
 				SendCommand (Xplus);
 			}
 
 			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-")) {
-				DoAction(Yminus);
+				//DoAction(Yminus);
+				StartCoroutine( DelayAction( Yminus ) );
 				SendCommand(Yminus);
 			}
 			
 			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+")) {
-				DoAction (Yplus);
+				//DoAction (Yplus);
+				StartCoroutine( DelayAction( Yplus ) );
 				SendCommand (Yplus);
 			}
 			// display client info
@@ -335,41 +351,52 @@ public class Main : MonoBehaviour {
 			if (Input.GetKey ("a")) {
 				switch (currentJoint) {
 				case 0:
-					DoAction (sldLT);
+					//DoAction (sldLT);
+					StartCoroutine( DelayAction( sldLT ) );
 					break;
 				case 1:
-					DoAction (midCCW);
+					//DoAction (midCCW);
+					StartCoroutine( DelayAction( midCCW ) );
 					break;
 				case 2:
-					DoAction (topCCW);
+					//DoAction (topCCW);
+					StartCoroutine( DelayAction( topCCW ) );
 					break;
 				}
 			}
 			if (Input.GetKey ("d")) {
 				switch (currentJoint) {
 				case 0:
-					DoAction (sldRT);
+					//DoAction (sldRT);
+					StartCoroutine( DelayAction( sldRT ) );
 					break;
 				case 1:
-					DoAction (midCW);
+					//DoAction (midCW);
+					StartCoroutine( DelayAction( midCW ) );
 					break;
 				case 2:
-					DoAction (topCW);
+					//DoAction (topCW);
+					StartCoroutine( DelayAction( topCW ) );
 					break;
 				
 				}
 			}
 
 			if (Input.GetKey (KeyCode.UpArrow))
-				DoAction (Yplus);
+				//DoAction (Yplus);
+				StartCoroutine( DelayAction( Yplus ) );
 			if (Input.GetKey (KeyCode.DownArrow))
-				DoAction (Yminus);
+				//DoAction (Yminus);
+				StartCoroutine( DelayAction( Yminus ) );
 			if (Input.GetKey (KeyCode.LeftArrow))
-				DoAction (Xminus);
+				//DoAction (Xminus);
+				StartCoroutine( DelayAction( Xminus ) );
 			if (Input.GetKey (KeyCode.RightArrow))
-				DoAction (Xplus);
+				//DoAction (Xplus);
+				StartCoroutine( DelayAction( Xplus ) );
 			if (Input.GetKey (KeyCode.Space))
-				DoAction (pnt);
+				//DoAction (pnt);
+				StartCoroutine( DelayAction( pnt ) );
 		}
 		/*
 		else
