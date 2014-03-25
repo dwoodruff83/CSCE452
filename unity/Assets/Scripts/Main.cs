@@ -72,9 +72,13 @@ public class Main : MonoBehaviour {
 	IPAddress ipAddr;
 	TcpClient tcpClient;
 	int timeDelay = 2;
+	string clientStatus;
+	string serverStatus;
 
 	TcpListener listener;
 	Socket sock;
+
+	Vector2 scrollPosition;
 
 	// Use this for initialization
 	void Start () {
@@ -85,9 +89,10 @@ public class Main : MonoBehaviour {
 		
 		isServer = NetworkData.isServer;
 		//ipAddressString = NetworkData.ipAddressString;
-		ipAddressString = "192.168.1.100";
+		//ipAddressString = "192.168.1.100";
+		ipAddressString = "10.201.141.222";
 		//portString = NetworkData.portString;
-		portString = "25011";
+		portString = "8081";
 		
 		d = 0;
 		theta3 = 0;
@@ -112,14 +117,15 @@ public class Main : MonoBehaviour {
 		
 		if (isServer) {
 			Debug.Log ("isServer");
+			clientStatus = "Awating connection to client...\n";
 			//init server
 			try {
 				ipAddr = IPAddress.Parse(ipAddressString);
 				int port = int.Parse(portString);
 				Debug.Log( port );
 				listener = new TcpListener( ipAddr, port);
-				listener.Start ();
-				sock = listener.AcceptSocket();
+				//listener.Start ();
+				//sock = listener.AcceptSocket();
 			}
 			catch (Exception e) {
 				Debug.Log(e);
@@ -127,7 +133,28 @@ public class Main : MonoBehaviour {
 			
 		} else {
 			//init client
-			tcpClient.Connect(ipAddressString,int.Parse(portString));
+			Debug.Log ("isClient");
+			clientStatus = "Awating connection to server...\n";
+			try {
+				tcpClient = new TcpClient(ipAddressString,int.Parse(portString));
+				if(tcpClient.Connected){
+					clientStatus = "Connected to server.\n";
+					//clientStatus += "Connected to ";
+					//clientStatus += "192.168.1.100\n";
+					//clientStatus += "  on port ";
+					//clientStatus += portString;
+
+				}
+				else {
+					clientStatus = "Couldn't connect.\n";
+				}
+			}
+			catch (ArgumentNullException e) {
+				clientStatus += ("ArgumentNullException: = " + e);
+			} 
+			catch (SocketException e) {
+				clientStatus += ("SocketException: {0}" + e);
+			}
 		}
 		
 	}
@@ -177,8 +204,10 @@ public class Main : MonoBehaviour {
 
 	IEnumerator DelayAction( string action )
 	{
-		yield return new WaitForSeconds (timeDelay);
+		if (delayToggle)
+			yield return new WaitForSeconds (timeDelay);
 		DoAction (action);
+		SendCommand (action);
 	}
 
 	void DoAction (string action) {
@@ -254,59 +283,28 @@ public class Main : MonoBehaviour {
 		if (!isServer) {
 			GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
 			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-			GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
-			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC")) {
-				//DoAction (topCCW);
+			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
+			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC"))
 				StartCoroutine( DelayAction( topCCW ) );
-				SendCommand (topCCW);
-			}
-
-			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC")) {
-				//DoAction (topCW);
+			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC"))
 				StartCoroutine( DelayAction( topCW ) );
-				SendCommand (topCW);
-			}
-
-			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC")) {
-				//DoAction (midCCW);
-				StartCoroutine( DelayAction( midCCW ) );
-				SendCommand (midCCW);
-			}
-			
-			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC")) {
-				//DoAction (midCW);
+			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC"))
+				StartCoroutine( DelayAction( midCCW ) );			
+			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC"))
 				StartCoroutine( DelayAction( midCW ) );
-				SendCommand (midCW);
-			}
-
-			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft")) {
-				//DoAction (sldLT);
-				StartCoroutine( DelayAction( sldLT ) );
-				SendCommand (sldLT);
-			}
-			
-			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight")) {
-				//DoAction (sldRT);
+			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft"))
+				StartCoroutine( DelayAction( sldLT ) );			
+			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight"))
 				StartCoroutine( DelayAction( sldRT ) );
-				SendCommand(sldRT);
-			}
-
-			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator)) {
-				//DoAction (pnt);
+			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator))
 				StartCoroutine( DelayAction( pnt ) );
-				SendCommand(pnt);
-			}
 
 			if (GUI.Button (new Rect (90, 246, 80, 60), delayIndicator)) {
 				delayToggle = !delayToggle;
 				if(delayToggle)
-				{
 					delayIndicator = "Delay On";
-				}
 				else
-				{
-					delayIndicator = "Delay Off";
-				}
+					delayIndicator = "Delay Off";			
 			}
 
 			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
@@ -335,8 +333,25 @@ public class Main : MonoBehaviour {
 				SendCommand (Yplus);
 			}
 			// display client info
+			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Client Connection Status");
+			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (Screen.width-250), GUILayout.Height (Screen.height-100));
+			//GUI.TextArea(new Rect(Screen.width-250,30,250,300),clientStatus);
+			GUI.skin.box.wordWrap = true; 
+			GUILayout.TextArea(clientStatus);
+			GUILayout.EndScrollView ();
+			GUILayout.EndArea();
+
 		} else {
 			// display server info
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (50), GUILayout.Height (Screen.height-100));
+			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Server Connection Status");
+			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
+			//GUI.TextArea(new Rect(Screen.width-250,30,250,300),serverStatus);
+			GUI.skin.box.wordWrap = true;
+			GUILayout.TextArea(serverStatus);
+			GUILayout.EndScrollView ();			
+			GUILayout.EndArea();
 		}
 	}
 
@@ -357,15 +372,12 @@ public class Main : MonoBehaviour {
 			if (Input.GetKey ("a")) {
 				switch (currentJoint) {
 				case 0:
-					//DoAction (sldLT);
 					StartCoroutine( DelayAction( sldLT ) );
 					break;
 				case 1:
-					//DoAction (midCCW);
 					StartCoroutine( DelayAction( midCCW ) );
 					break;
 				case 2:
-					//DoAction (topCCW);
 					StartCoroutine( DelayAction( topCCW ) );
 					break;
 				}
@@ -373,15 +385,12 @@ public class Main : MonoBehaviour {
 			if (Input.GetKey ("d")) {
 				switch (currentJoint) {
 				case 0:
-					//DoAction (sldRT);
 					StartCoroutine( DelayAction( sldRT ) );
 					break;
 				case 1:
-					//DoAction (midCW);
 					StartCoroutine( DelayAction( midCW ) );
 					break;
 				case 2:
-					//DoAction (topCW);
 					StartCoroutine( DelayAction( topCW ) );
 					break;
 				
@@ -389,19 +398,14 @@ public class Main : MonoBehaviour {
 			}
 
 			if (Input.GetKey (KeyCode.UpArrow))
-				//DoAction (Yplus);
 				StartCoroutine( DelayAction( Yplus ) );
 			if (Input.GetKey (KeyCode.DownArrow))
-				//DoAction (Yminus);
 				StartCoroutine( DelayAction( Yminus ) );
 			if (Input.GetKey (KeyCode.LeftArrow))
-				//DoAction (Xminus);
 				StartCoroutine( DelayAction( Xminus ) );
 			if (Input.GetKey (KeyCode.RightArrow))
-				//DoAction (Xplus);
 				StartCoroutine( DelayAction( Xplus ) );
 			if (Input.GetKey (KeyCode.Space))
-				//DoAction (pnt);
 				StartCoroutine( DelayAction( pnt ) );
 		}
 		/*
