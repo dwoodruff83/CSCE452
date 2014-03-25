@@ -1,0 +1,111 @@
+Initialize engine version: 4.3.4f1 (e444f76e01cd)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 9.0c [aticfx32.dll 8.17.10.1083]
+    Renderer: AMD Radeon(TM) HD 6630M
+    Vendor:   ATI
+    VRAM:     1010 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=1 INTZ=1 RAWZ=0 NULL=1 RESZ=1 SlowINTZ=1
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
+Loading C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-UnityScript.dll (this message is harmless)
+Loading C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\Assembly-UnityScript.dll into Unity Child Domain
+- Completed reload, in  0.106 seconds
+desktop: 1920x1080 60Hz; virtual: 3600x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+Platform assembly: C:\Users\Daniel\Desktop\csce452\testBuild_Data\Managed\System.dll (this message is harmless)
+UnloadTime: 0.353705 ms
+System memory in use before: 11.3 MB.
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+System memory in use after: 11.2 MB.
+
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 391.
+Total: 0.638501 ms (FindLiveObjects: 0.022725 ms CreateObjectMapping: 0.012095 ms MarkObjects: 0.119856 ms  DeleteObjects: 0.006597 ms)
+
+T-01
+
+0 1 0 0 
+-1 0 0 0 
+0 0 1 0 
+0 0 0 1 
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Matrix:Print(String) (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Matrix.cs:199)
+Main:UpdateRobot() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:541)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:110)
+ 
+(Filename: C Line: 0)
+
+T-12
+
+1 0 0 3 
+0 0 -1 0 
+0 1 0 0 
+0 0 0 1 
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Matrix:Print(String) (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Matrix.cs:199)
+Main:UpdateRobot() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:542)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:110)
+ 
+(Filename: C Line: 0)
+
+T-23
+
+1 0 0 2 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Matrix:Print(String) (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Matrix.cs:199)
+Main:UpdateRobot() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:543)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:110)
+ 
+(Filename: C Line: 0)
+
+T-34
+
+0 -1 0 1.6 
+0 0 1 0 
+-1 0 0 0 
+0 0 0 1 
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Matrix:Print(String) (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Matrix.cs:199)
+Main:UpdateRobot() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:544)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:110)
+ 
+(Filename: C Line: 0)
+
+0
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.MonoBehaviour:print(Object)
+Main:UpdateRobot() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:570)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:110)
+ 
+(Filename: C Line: 0)
+
+isServer
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:114)
+ 
+(Filename: C Line: 0)
+
+25011
+UnityEngine.Debug:Internal_Log(Int32, String, Object)
+UnityEngine.Debug:Log(Object)
+Main:Start() (at C:\Users\Daniel\Desktop\csce452\unity\Assets\Scripts\Main.cs:119)
+ 
+(Filename: C Line: 0)
+

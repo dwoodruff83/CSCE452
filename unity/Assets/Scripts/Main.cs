@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -68,11 +69,68 @@ public class Main : MonoBehaviour {
 	static bool isServer;
 	static string ipAddressString;
 	static string portString;
+	IPAddress ipAddr;
 	TcpClient tcpClient;
 	int timeDelay = 2;
 
 	TcpListener listener;
 	Socket sock;
+
+	// Use this for initialization
+	void Start () {
+		//THIS IS HOW YOU ACCESS THE INFORMATION ACQUIRED FROM THE FIRST SCENE.
+		//Debug.Log (NetworkData.isServer);
+		//Debug.Log (NetworkData.ipAddressString);
+		//Debug.Log (NetworkData.portString);
+		
+		isServer = NetworkData.isServer;
+		//ipAddressString = NetworkData.ipAddressString;
+		ipAddressString = "192.168.1.100";
+		//portString = NetworkData.portString;
+		portString = "25011";
+		
+		d = 0;
+		theta3 = 0;
+		theta4 = 0;
+		currentJoint = 0; // default selected movement is the slider
+		
+		Slider = GameObject.Find ("Slider");
+		LowerArm = GameObject.Find ("LowerArm");
+		MiddleArm = GameObject.Find ("MiddleArm");
+		UpperArm = GameObject.Find ("UpperArm");
+		
+		Pivot1 = GameObject.Find ("Pivot1");
+		Pivot2 = GameObject.Find ("Pivot2");
+		
+		sliderColor = Slider.transform.renderer.material.color;
+		pivot1Color = Pivot1.transform.renderer.material.color;
+		pivot2Color = Pivot2.transform.renderer.material.color;
+		
+		ChangeJointColor ();
+		UpdateRobot ();
+		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
+		
+		if (isServer) {
+			Debug.Log ("isServer");
+			//init server
+			try {
+				ipAddr = IPAddress.Parse(ipAddressString);
+				int port = int.Parse(portString);
+				Debug.Log( port );
+				listener = new TcpListener( ipAddr, port);
+				listener.Start ();
+				sock = listener.AcceptSocket();
+			}
+			catch (Exception e) {
+				Debug.Log(e);
+			}			
+			
+		} else {
+			//init client
+			tcpClient.Connect(ipAddressString,int.Parse(portString));
+		}
+		
+	}
 
   	void ChangeJointColor()
 	{
@@ -115,59 +173,7 @@ public class Main : MonoBehaviour {
 		return localIP;
 	}
 
-	// Use this for initialization
-	void Start () {
-		//THIS IS HOW YOU ACCESS THE INFORMATION ACQUIRED FROM THE FIRST SCENE.
-		//Debug.Log (NetworkData.isServer);
-		//Debug.Log (NetworkData.ipAddressString);
-		//Debug.Log (NetworkData.portString);
 
-		isServer = NetworkData.isServer;
-		ipAddressString = NetworkData.ipAddressString;
-		portString = NetworkData.portString;
-	
-		d = 0;
-		theta3 = 0;
-		theta4 = 0;
-		currentJoint = 0; // default selected movement is the slider
-
-		Slider = GameObject.Find ("Slider");
-		LowerArm = GameObject.Find ("LowerArm");
-		MiddleArm = GameObject.Find ("MiddleArm");
-		UpperArm = GameObject.Find ("UpperArm");
-
-		Pivot1 = GameObject.Find ("Pivot1");
-		Pivot2 = GameObject.Find ("Pivot2");
-		
-		sliderColor = Slider.transform.renderer.material.color;
-		pivot1Color = Pivot1.transform.renderer.material.color;
-		pivot2Color = Pivot2.transform.renderer.material.color;
-
-		ChangeJointColor ();
-		UpdateRobot ();
-		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
-
-		//string localIP;
-
-		if (isServer) {
-			Debug.Log ("isServer");
-			//init server
-			int port = 80;
-			string ip = "10.9.66.212";//LocalIPAddress();
-			IPAddress ipAddr = IPAddress.Parse( ip );
-			//int.TryParse( portString, port );
-			listener = new TcpListener( ipAddr, port );
-			listener.Start ();
-			sock = listener.AcceptSocket();
-			//ServerStuff ();
-
-
-		} else {
-			//init client
-			tcpClient.Connect(ipAddressString,int.Parse(portString));
-		}
-
-	}
 
 	IEnumerator DelayAction( string action )
 	{
