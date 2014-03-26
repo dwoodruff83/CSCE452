@@ -117,7 +117,7 @@ public class Main : MonoBehaviour {
 					if (command != string.Empty)
 					{
 						command = command.Trim();
-						Debug.Log ("Recieved:" + command);
+						clientStatus = command;
 						lock (serverLock)
 						{
 							ServerQueue.Add( command );
@@ -353,30 +353,30 @@ public class Main : MonoBehaviour {
 					delayIndicator = "Delay Off";			
 			}
 
-			GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
+
 			//X is Z in our case
 			if (GUI.Button (new Rect (10, 308, 60, 60), "X-")) {
 				//DoAction (Xminus);
 				StartCoroutine( DelayAction( Xminus ) );
-				SendCommand (Xminus);
+				//SendCommand (Xminus);
 			}
 
 			if (GUI.Button (new Rect (72, 308, 60, 60), "X+")) {
 				//DoAction(Xplus);
 				StartCoroutine( DelayAction( Xplus ) );
-				SendCommand (Xplus);
+				//SendCommand (Xplus);
 			}
 
 			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-")) {
 				//DoAction(Yminus);
 				StartCoroutine( DelayAction( Yminus ) );
-				SendCommand(Yminus);
+				//SendCommand(Yminus);
 			}
 			
 			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+")) {
 				//DoAction (Yplus);
 				StartCoroutine( DelayAction( Yplus ) );
-				SendCommand (Yplus);
+				//SendCommand (Yplus);
 			}
 			// display client info
 			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Client Connection Status");
@@ -393,12 +393,13 @@ public class Main : MonoBehaviour {
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (50), GUILayout.Height (Screen.height-100));
 			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Server Connection Status");
 			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
-			//GUI.TextArea(new Rect(Screen.width-250,30,250,300),serverStatus);
+			GUI.TextArea(new Rect(Screen.width-250,30,250,300),clientStatus);
 			GUI.skin.box.wordWrap = true;
 			GUILayout.TextArea(clientStatus);
 			GUILayout.EndScrollView ();			
 			GUILayout.EndArea();
 		}
+		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
 	}
 
 	void Update () {
