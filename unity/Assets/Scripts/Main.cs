@@ -77,7 +77,7 @@ public class Main : MonoBehaviour {
 	static string ipAddressString;
 	static string portString;
 	static int packets;
-	static string packetString;
+	static string packetString = "lol";
 	IPAddress ipAddr;
 	TcpClient tcpClient;
 	int timeDelay = 2;
@@ -408,7 +408,7 @@ public class Main : MonoBehaviour {
 			GUILayout.EndArea();
 		}
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
-		GUI.TextArea (new Rect (400, 0, 150, 55), packetString);
+		GUI.TextArea (new Rect (Screen.width-250, 70, 150, 55), packetString);
 	}
 
 	void Update () {
