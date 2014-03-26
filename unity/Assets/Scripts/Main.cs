@@ -6,11 +6,13 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Net.Sockets;
+using System.Threading;
 
 public class Main : MonoBehaviour {
 
 	static bool paintToggle = false;
 	static bool delayToggle = false;
+	static bool Quit = false;
 
 	static float d;
 	static float theta3;
@@ -65,6 +67,10 @@ public class Main : MonoBehaviour {
 	const string clear = "c";
 	const string pnt = "p";
 
+	ThreadStart server;
+	Thread thread;
+
+
 	//-> Client / Server variables
 	static bool isServer;
 	static string ipAddressString;
@@ -80,6 +86,37 @@ public class Main : MonoBehaviour {
 
 	Vector2 scrollPosition;
 
+	void StartServer()
+	{
+			clientStatus = "Awating connection to client...\n";
+			//init server
+			try {
+				//ipAddressString = NetworkData.ipAddressString;
+				ipAddressString = "127.0.0.1";
+				//portString = NetworkData.portString;
+				portString = "8081";
+				ipAddr = IPAddress.Parse(ipAddressString);
+				int port = int.Parse(portString);
+				listener = new TcpListener( ipAddr, port);
+				listener.Start ();
+				sock = listener.AcceptSocket();
+				while (!Quit && sock.Connected)
+				{
+					byte[] b = new byte[100];
+					int k = sock.Receive (b);
+				
+					string command = k.ToString();
+					DoAction( command );
+					Debug.Log (command);
+					//if( command == quit )
+					//	Quit = true;
+				}
+			}
+			catch (Exception e) {
+				Debug.Log(e);
+			}			
+	}
+
 	// Use this for initialization
 	void Start () {
 		//THIS IS HOW YOU ACCESS THE INFORMATION ACQUIRED FROM THE FIRST SCENE.
@@ -89,8 +126,7 @@ public class Main : MonoBehaviour {
 		
 		isServer = NetworkData.isServer;
 		//ipAddressString = NetworkData.ipAddressString;
-		//ipAddressString = "192.168.1.100";
-		ipAddressString = "10.201.141.222";
+		ipAddressString = "127.0.0.1";
 		//portString = NetworkData.portString;
 		portString = "8081";
 		
@@ -116,21 +152,9 @@ public class Main : MonoBehaviour {
 		inverseCoordinates = string.Format("Paint Brush Coords: \n X: {0} \n Y: {1}",Link3TopVec[2][0],Link3TopVec[1][0]);
 		
 		if (isServer) {
-			Debug.Log ("isServer");
-			clientStatus = "Awating connection to client...\n";
-			//init server
-			try {
-				ipAddr = IPAddress.Parse(ipAddressString);
-				int port = int.Parse(portString);
-				Debug.Log( port );
-				listener = new TcpListener( ipAddr, port);
-				//listener.Start ();
-				//sock = listener.AcceptSocket();
-			}
-			catch (Exception e) {
-				Debug.Log(e);
-			}			
-			
+			server = new ThreadStart(this.StartServer);
+			thread = new Thread(server);
+			thread.Start ();
 		} else {
 			//init client
 			Debug.Log ("isClient");
@@ -143,7 +167,6 @@ public class Main : MonoBehaviour {
 					//clientStatus += "192.168.1.100\n";
 					//clientStatus += "  on port ";
 					//clientStatus += portString;
-
 				}
 				else {
 					clientStatus = "Couldn't connect.\n";
@@ -257,7 +280,8 @@ public class Main : MonoBehaviour {
 			break;
 		case quit:
 			// add quit button
-			//tcpClient.Close();
+			Quit = true;
+			tcpClient.Close();
 			sock.Close ();
 			listener.Stop ();
 			break;
@@ -280,6 +304,7 @@ public class Main : MonoBehaviour {
 	}
 
 	void OnGUI () {
+
 		if (!isServer) {
 			GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
 			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
@@ -349,7 +374,7 @@ public class Main : MonoBehaviour {
 			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
 			//GUI.TextArea(new Rect(Screen.width-250,30,250,300),serverStatus);
 			GUI.skin.box.wordWrap = true;
-			GUILayout.TextArea(serverStatus);
+			GUILayout.TextArea(clientStatus);
 			GUILayout.EndScrollView ();			
 			GUILayout.EndArea();
 		}
