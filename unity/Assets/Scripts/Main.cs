@@ -138,10 +138,10 @@ public class Main : MonoBehaviour {
 		//Debug.Log (NetworkData.portString);
 		
 		isServer = NetworkData.isServer;
-		//ipAddressString = NetworkData.ipAddressString;
-		ipAddressString = "127.0.0.1";
-		//portString = NetworkData.portString;
-		portString = "8081";
+		ipAddressString = NetworkData.ipAddressString;
+		//ipAddressString = "127.0.0.1";
+		portString = NetworkData.portString;
+		//portString = "8081";
 		
 		d = 0;
 		theta3 = 0;
