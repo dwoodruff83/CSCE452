@@ -111,6 +111,7 @@ public class Main : MonoBehaviour {
 					int k = s.Receive(b);
 					
 					string command = string.Empty;
+
 					for(int i =0; i <k; i++)
 					{
 						command += ( Convert.ToChar(b[i]));
@@ -124,10 +125,11 @@ public class Main : MonoBehaviour {
 						{
 							ServerQueue.Add( command );
 						}
-
 					packets++;
 					packetString = string.Format( "packets {0}", packets );
 					}
+
+					s.Send (encoder.GetBytes("Received"));
 				}
 			}
 			catch (Exception e) {
@@ -232,6 +234,10 @@ public class Main : MonoBehaviour {
 					
 			packets++;
 			packetString = string.Format( "packets {0}", packets );
+
+				byte[] bb = new byte[100];
+				int k = stream.Read(bb,0,100);
+
 				}
 	}
 
