@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,30 +92,36 @@ public class Main : MonoBehaviour {
 			clientStatus = "Awating connection to client...\n";
 			//init server
 			try {
-				//ipAddressString = NetworkData.ipAddressString;
-				ipAddressString = "127.0.0.1";
-				//portString = NetworkData.portString;
-				portString = "8081";
+				ipAddressString = NetworkData.ipAddressString;
+				//ipAddressString = "127.0.0.1";
+				portString = NetworkData.portString;
+				//portString = "8081";
 				ipAddr = IPAddress.Parse(ipAddressString);
 				int port = int.Parse(portString);
 				listener = new TcpListener( ipAddr, port);
 				listener.Start ();
-				sock = listener.AcceptSocket();
-				while (!Quit && sock.Connected)
+
+				Socket s = listener.AcceptSocket ();
+				ASCIIEncoding encoder = new ASCIIEncoding();
+				while (!Quit)
 				{
 					byte[] b = new byte[100];
-					int k = sock.Receive (b,0,100,SocketFlags.None);
-						
-					char[] chars = new char[b.Length/sizeof(char)];
-					System.Buffer.BlockCopy(b, 0, chars, 0, b.Length);
-					string command = new string(chars);
+					int k = s.Receive(b);
+					
+					string command = string.Empty;
+					for(int i =0; i <k; i++)
+					{
+						command += ( Convert.ToChar(b[i]));
+					}
+
 					if (command != string.Empty)
 					{
-					Debug.Log ("Recieved:" + command);
-					lock (serverLock)
-					{
-						ServerQueue.Add( Xplus );
-					}
+						command = command.Trim();
+						Debug.Log ("Recieved:" + command);
+						lock (serverLock)
+						{
+							ServerQueue.Add( command );
+						}
 					}
 				}
 			}
@@ -207,12 +213,18 @@ public class Main : MonoBehaviour {
 	}
 
 	void SendCommand(string command) {
-		clientStatus = command;
-		Debug.Log ("Command: " + command);
-		Stream stream = tcpClient.GetStream ();
-		ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
-		byte[] byt = asciiEncoding.GetBytes (command);
-		stream.Write (byt,0,byt.Length);
+		if (tcpClient.Connected) 
+				{
+					clientStatus = command;
+					Debug.Log ("Command: " + command);
+					Stream stream = tcpClient.GetStream ();
+					ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
+					byte[] byt = asciiEncoding.GetBytes(command);
+					foreach (byte a in byt) {
+							Debug.Log (Convert.ToChar(a));
+					}
+					stream.Write (byt, 0, byt.Length);
+				}
 	}
 
 	//get local IP address of server
