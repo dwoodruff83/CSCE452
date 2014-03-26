@@ -67,10 +67,11 @@ public class Main : MonoBehaviour {
 	const string clear = "c";
 	const string pnt = "p";
 
+	object serverLock = new object();
 	ThreadStart server;
 	Thread thread;
 
-
+	static List<string> ServerQueue = new List<string>();
 	//-> Client / Server variables
 	static bool isServer;
 	static string ipAddressString;
@@ -103,13 +104,19 @@ public class Main : MonoBehaviour {
 				while (!Quit && sock.Connected)
 				{
 					byte[] b = new byte[100];
-					int k = sock.Receive (b);
-				
-					string command = k.ToString();
-					DoAction( command );
-					Debug.Log (command);
-					//if( command == quit )
-					//	Quit = true;
+					int k = sock.Receive (b,0,100,SocketFlags.None);
+						
+					char[] chars = new char[b.Length/sizeof(char)];
+					System.Buffer.BlockCopy(b, 0, chars, 0, b.Length);
+					string command = new string(chars);
+					if (command != string.Empty)
+					{
+					Debug.Log ("Recieved:" + command);
+					lock (serverLock)
+					{
+						ServerQueue.Add( Xplus );
+					}
+					}
 				}
 			}
 			catch (Exception e) {
@@ -157,7 +164,7 @@ public class Main : MonoBehaviour {
 			thread.Start ();
 		} else {
 			//init client
-			Debug.Log ("isClient");
+			//Debug.Log ("isClient");
 			clientStatus = "Awating connection to server...\n";
 			try {
 				tcpClient = new TcpClient(ipAddressString,int.Parse(portString));
@@ -200,6 +207,8 @@ public class Main : MonoBehaviour {
 	}
 
 	void SendCommand(string command) {
+		clientStatus = command;
+		Debug.Log ("Command: " + command);
 		Stream stream = tcpClient.GetStream ();
 		ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
 		byte[] byt = asciiEncoding.GetBytes (command);
@@ -433,22 +442,17 @@ public class Main : MonoBehaviour {
 			if (Input.GetKey (KeyCode.Space))
 				StartCoroutine( DelayAction( pnt ) );
 		}
-		/*
 		else
 		{
-			if (sock.Connected) {
-				byte[] b = new byte[100];
-				int k = sock.Receive (b);
-				
-				string command = k.ToString();
-				DoAction( command );
-				
-				if( command == quit )
-					DoAction( command ); 
+			lock (serverLock)
+			{
+				while(ServerQueue.Count > 0)
+				{
+					DoAction (ServerQueue[0]);
+					ServerQueue.RemoveAt(0);
+				}
 			}
-
 		}
-		*/
 	}
 
 	float GetAngle(Matrix Top, Matrix Mid)
@@ -566,10 +570,10 @@ public class Main : MonoBehaviour {
 											-1,0,0,0,
 											0,0,0,1 }	, 4);
 
-		T01Matrix.Print ("T-01");
-		T12Matrix.Print ("T-12");
-		T23Matrix.Print ("T-23");
-		T34Matrix.Print ("T-34");
+		//T01Matrix.Print ("T-01");
+		//T12Matrix.Print ("T-12");
+		//T23Matrix.Print ("T-23");
+		//T34Matrix.Print ("T-34");
 
 		Matrix LowerArmMatrix = T01Matrix;
 
@@ -595,6 +599,6 @@ public class Main : MonoBehaviour {
 		{
 			Paint ();
 		}
-		print (UpperArm.transform.eulerAngles.z);
+		//print (UpperArm.transform.eulerAngles.z);
 	}
 }
