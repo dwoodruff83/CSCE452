@@ -76,6 +76,8 @@ public class Main : MonoBehaviour {
 	static bool isServer;
 	static string ipAddressString;
 	static string portString;
+	static int packets;
+	static string packetString;
 	IPAddress ipAddr;
 	TcpClient tcpClient;
 	int timeDelay = 2;
@@ -122,6 +124,9 @@ public class Main : MonoBehaviour {
 						{
 							ServerQueue.Add( command );
 						}
+
+					packets++;
+					packetString = string.Format( "packets {0}", packets );
 					}
 				}
 			}
@@ -224,6 +229,9 @@ public class Main : MonoBehaviour {
 							Debug.Log (Convert.ToChar(a));
 					}
 					stream.Write (byt, 0, byt.Length);
+					
+			packets++;
+			packetString = string.Format( "packets {0}", packets );
 				}
 	}
 
@@ -400,6 +408,7 @@ public class Main : MonoBehaviour {
 			GUILayout.EndArea();
 		}
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
+		GUI.TextArea (new Rect (400, 0, 150, 55), packetString);
 	}
 
 	void Update () {
