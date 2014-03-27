@@ -132,8 +132,9 @@ public class Main : MonoBehaviour {
 
 				s.Send (encoder.GetBytes("Received"));
 				status += "\nConfirmation sent.";
+				if(command == quit)
+					Application.Quit();
 			}
-			Application.Quit();
 		}
 		catch (Exception e) {
 			Debug.Log(e);
@@ -273,11 +274,6 @@ public class Main : MonoBehaviour {
 	}
 
 	void DoAction (string action) {
-		if (!isServer) {
-			//
-			//  add delay here
-			//
-		}
 		switch (action) {
 		case topCCW:
 			theta4 -= .1f;
@@ -323,7 +319,7 @@ public class Main : MonoBehaviour {
 			tcpClient.Close();
 			sock.Close ();
 			listener.Stop ();
-
+			Application.Quit();
 			break;
 		case clear:
 			// add clear button maybe
