@@ -77,64 +77,68 @@ public class Main : MonoBehaviour {
 	static string ipAddressString;
 	static string portString;
 	static int packets;
-	static string packetString = "lol";
+	static string packetString = "0";
 	IPAddress ipAddr;
 	TcpClient tcpClient;
 	int timeDelay = 2;
-	string clientStatus;
-	string serverStatus;
+	string status;
 
 	TcpListener listener;
 	Socket sock;
 
 	Vector2 scrollPosition;
 
-	void StartServer()
-	{
-			clientStatus = "Awating connection to client...\n";
-			//init server
-			try {
-				ipAddressString = NetworkData.ipAddressString;
-				//ipAddressString = "127.0.0.1";
-				portString = NetworkData.portString;
-				//portString = "8081";
-				ipAddr = IPAddress.Parse(ipAddressString);
-				int port = int.Parse(portString);
-				listener = new TcpListener( ipAddr, port);
-				listener.Start ();
+	void StartServer() {
+		//init server
+		try {
+			ipAddressString = NetworkData.ipAddressString;
+			//ipAddressString = "127.0.0.1";
+			portString = NetworkData.portString;
+			//portString = "8081";
+			status = string.Format ("\nLocal IP: {0}", ipAddressString);
+			status += "\nAwating connection to client...";
+			status += string.Format ("\nListening on port: {0}", portString);
+			ipAddr = IPAddress.Parse(ipAddressString);
+			int port = int.Parse(portString);
+			listener = new TcpListener( ipAddr, port);
+			listener.Start ();
 
-				Socket s = listener.AcceptSocket ();
-				ASCIIEncoding encoder = new ASCIIEncoding();
-				while (!Quit)
+			Socket s = listener.AcceptSocket ();
+			status += string.Format("\nSocket {0} accepted.", s.SocketType);
+			ASCIIEncoding encoder = new ASCIIEncoding();
+			while (!Quit)
+			{
+				byte[] b = new byte[100];
+				int k = s.Receive(b);
+				
+				string command = string.Empty;
+
+				for(int i =0; i <k; i++)
 				{
-					byte[] b = new byte[100];
-					int k = s.Receive(b);
-					
-					string command = string.Empty;
-
-					for(int i =0; i <k; i++)
-					{
-						command += ( Convert.ToChar(b[i]));
-					}
-
-					if (command != string.Empty)
-					{
-						command = command.Trim();
-						clientStatus = command;
-						lock (serverLock)
-						{
-							ServerQueue.Add( command );
-						}
-					packets++;
-					packetString = string.Format( "packets {0}", packets );
-					}
-
-					s.Send (encoder.GetBytes("Received"));
+					command += ( Convert.ToChar(b[i]));
 				}
+
+				if (command != string.Empty)
+				{
+					command = command.Trim();
+					status += string.Format("\nReceived command: {0}",command);
+					lock (serverLock)
+					{
+						ServerQueue.Add( command );
+					}
+				packets++;
+				packetString = string.Format( "{0}", packets );
+				}
+
+				s.Send (encoder.GetBytes("Received"));
+				status += "\nConfirmation sent.";
 			}
-			catch (Exception e) {
-				Debug.Log(e);
-			}			
+			Application.Quit();
+		}
+		catch (Exception e) {
+			Debug.Log(e);
+			status += ("Exception: {0}" + e);
+		}			
 	}
 
 	// Use this for initialization
@@ -178,25 +182,24 @@ public class Main : MonoBehaviour {
 		} else {
 			//init client
 			//Debug.Log ("isClient");
-			clientStatus = "Awating connection to server...\n";
+			status = "Awating connection to server...";
 			try {
 				tcpClient = new TcpClient(ipAddressString,int.Parse(portString));
 				if(tcpClient.Connected){
-					clientStatus = "Connected to server.\n";
-					//clientStatus += "Connected to ";
-					//clientStatus += "192.168.1.100\n";
-					//clientStatus += "  on port ";
-					//clientStatus += portString;
+					status = "Connected to server.";
+					status += string.Format("\nIP Address: {0}", ipAddressString);
+					status += string.Format("\n   on port: {0}", portString);
+
 				}
 				else {
-					clientStatus = "Couldn't connect.\n";
+					status = "Couldn't connect.\n";
 				}
 			}
 			catch (ArgumentNullException e) {
-				clientStatus += ("ArgumentNullException: = " + e);
+				status += ("\nArgumentNullException: = " + e);
 			} 
 			catch (SocketException e) {
-				clientStatus += ("SocketException: {0}" + e);
+				status += ("\nSocketException: {0}" + e);
 			}
 		}
 		
@@ -220,25 +223,25 @@ public class Main : MonoBehaviour {
 	}
 
 	void SendCommand(string command) {
-		if (tcpClient.Connected) 
-				{
-					clientStatus = command;
-					Debug.Log ("Command: " + command);
-					Stream stream = tcpClient.GetStream ();
-					ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
-					byte[] byt = asciiEncoding.GetBytes(command);
-					foreach (byte a in byt) {
-							Debug.Log (Convert.ToChar(a));
-					}
-					stream.Write (byt, 0, byt.Length);
-					
+		if (tcpClient.Connected) {
+
+			Debug.Log ("Command: " + command);
+			Stream stream = tcpClient.GetStream ();
+			ASCIIEncoding asciiEncoding = new ASCIIEncoding ();
+			byte[] byt = asciiEncoding.GetBytes(command);
+			foreach (byte a in byt) {
+					Debug.Log (Convert.ToChar(a));
+			}
+			stream.Write (byt, 0, byt.Length);					
 			packets++;
-			packetString = string.Format( "packets {0}", packets );
+			packetString = string.Format( "{0}", packets );
 
-				byte[] bb = new byte[100];
-				int k = stream.Read(bb,0,100);
-
-				}
+			byte[] bb = new byte[100];
+			int k = stream.Read(bb,0,100);
+			if(Quit) {
+				Application.Quit();
+			}
+		}
 	}
 
 	//get local IP address of server
@@ -266,6 +269,7 @@ public class Main : MonoBehaviour {
 			yield return new WaitForSeconds (timeDelay);
 		DoAction (action);
 		SendCommand (action);
+		status += string.Format ("\nSent command {0}: {1}", packetString, action);
 	}
 
 	void DoAction (string action) {
@@ -319,6 +323,7 @@ public class Main : MonoBehaviour {
 			tcpClient.Close();
 			sock.Close ();
 			listener.Stop ();
+
 			break;
 		case clear:
 			// add clear button maybe
@@ -339,82 +344,49 @@ public class Main : MonoBehaviour {
 	}
 
 	void OnGUI () {
-
 		if (!isServer) {
 			GUI.TextArea (new Rect (0, 0, 150, 55), "Movement Controls:\nCC = Counter-Clockwise\nC = Clockwise");
-			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows to Toggle Joint\nLeft/Right Arrows to rotate or slide\nHold Spacebar to paint");
-			//GUI.TextArea (new Rect (600, 0, 225, 65), "Keyboard Controls:\nUp/Down Arrows move in Y direction\nLeft/Right Arrows move in X direction\nHold Spacebar to paint");
 			if (GUI.Button (new Rect (10, 60, 60, 60), "Upper\nCC"))
-				StartCoroutine( DelayAction( topCCW ) );
+					StartCoroutine (DelayAction (topCCW));
 			if (GUI.Button (new Rect (72, 60, 60, 60), "Upper\nC"))
-				StartCoroutine( DelayAction( topCW ) );
+					StartCoroutine (DelayAction (topCW));
 			if (GUI.Button (new Rect (10, 122, 60, 60), "Middle\nCC"))
-				StartCoroutine( DelayAction( midCCW ) );			
+					StartCoroutine (DelayAction (midCCW));			
 			if (GUI.Button (new Rect (72, 122, 60, 60), "Middle\nC"))
-				StartCoroutine( DelayAction( midCW ) );
+					StartCoroutine (DelayAction (midCW));
 			if (GUI.Button (new Rect (10, 184, 60, 60), "Slider\nLeft"))
-				StartCoroutine( DelayAction( sldLT ) );			
+					StartCoroutine (DelayAction (sldLT));			
 			if (GUI.Button (new Rect (72, 184, 60, 60), "Slider\nRight"))
-				StartCoroutine( DelayAction( sldRT ) );
+					StartCoroutine (DelayAction (sldRT));
 			if (GUI.Button (new Rect (10, 246, 80, 60), paintIndicator))
-				StartCoroutine( DelayAction( pnt ) );
-
+					StartCoroutine (DelayAction (pnt));
 			if (GUI.Button (new Rect (90, 246, 80, 60), delayIndicator)) {
-				delayToggle = !delayToggle;
-				if(delayToggle)
-					delayIndicator = "Delay On";
-				else
-					delayIndicator = "Delay Off";			
+					delayToggle = !delayToggle;
+					if (delayToggle)
+							delayIndicator = "Delay On";
+					else
+							delayIndicator = "Delay Off";			
 			}
-
-
 			//X is Z in our case
-			if (GUI.Button (new Rect (10, 308, 60, 60), "X-")) {
-				//DoAction (Xminus);
-				StartCoroutine( DelayAction( Xminus ) );
-				//SendCommand (Xminus);
-			}
-
-			if (GUI.Button (new Rect (72, 308, 60, 60), "X+")) {
-				//DoAction(Xplus);
-				StartCoroutine( DelayAction( Xplus ) );
-				//SendCommand (Xplus);
-			}
-
-			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-")) {
-				//DoAction(Yminus);
-				StartCoroutine( DelayAction( Yminus ) );
-				//SendCommand(Yminus);
-			}
-			
-			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+")) {
-				//DoAction (Yplus);
-				StartCoroutine( DelayAction( Yplus ) );
-				//SendCommand (Yplus);
-			}
-			// display client info
-			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Client Connection Status");
-			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (Screen.width-250), GUILayout.Height (Screen.height-100));
-			//GUI.TextArea(new Rect(Screen.width-250,30,250,300),clientStatus);
-			GUI.skin.box.wordWrap = true; 
-			GUILayout.TextArea(clientStatus);
-			GUILayout.EndScrollView ();
-			GUILayout.EndArea();
-
-		} else {
-			// display server info
-			scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (50), GUILayout.Height (Screen.height-100));
-			GUI.TextArea(new Rect(Screen.width-300,0,250,30),"Server Connection Status");
-			GUILayout.BeginArea (new Rect(Screen.width-300,30,250,300));
-			GUI.TextArea(new Rect(Screen.width-250,30,250,300),clientStatus);
-			GUI.skin.box.wordWrap = true;
-			GUILayout.TextArea(clientStatus);
-			GUILayout.EndScrollView ();			
-			GUILayout.EndArea();
+			if (GUI.Button (new Rect (10, 308, 60, 60), "X-"))
+				StartCoroutine (DelayAction (Xminus));
+			if (GUI.Button (new Rect (72, 308, 60, 60), "X+"))
+				StartCoroutine (DelayAction (Xplus));
+			if (GUI.Button (new Rect (10, 370, 60, 60), "Y-"))
+				StartCoroutine (DelayAction (Yminus));
+			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+"))
+				StartCoroutine (DelayAction (Yplus));
 		}
+		// display client info
+		if (GUI.Button (new Rect (Screen.width - 375, 0, 75, 75), "QUIT"))
+			StartCoroutine (DelayAction (quit));
+		GUILayout.BeginArea (new Rect(Screen.width-300,0,300,Screen.height));
+		scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (300), GUILayout.Height (Screen.height));
+		GUI.skin.box.wordWrap = true; 
+		GUILayout.TextArea(status);
+		GUILayout.EndScrollView ();
+		GUILayout.EndArea();
 		GUI.TextArea (new Rect (160, 0, 150, 55), inverseCoordinates);
-		GUI.TextArea (new Rect (Screen.width-250, 70, 150, 55), packetString);
 	}
 
 	void Update () {
