@@ -95,7 +95,7 @@ public class Main : MonoBehaviour {
 			//ipAddressString = "127.0.0.1";
 			portString = NetworkData.portString;
 			//portString = "8081";
-			status = string.Format ("\nLocal IP: {0}", ipAddressString);
+			status = string.Format ("Local IP: {0}", ipAddressString);
 			status += "\nAwating connection to client...";
 			status += string.Format ("\nListening on port: {0}", portString);
 			ipAddr = IPAddress.Parse(ipAddressString);
@@ -377,11 +377,12 @@ public class Main : MonoBehaviour {
 			if (GUI.Button (new Rect (72, 370, 60, 60), "Y+"))
 				StartCoroutine (DelayAction (Yplus));
 		}
-		// display client info
+
 		if (GUI.Button (new Rect (Screen.width - 375, 0, 75, 75), "QUIT"))
 			StartCoroutine (DelayAction (quit));
-		GUILayout.BeginArea (new Rect(Screen.width-300,0,300,Screen.height));
-		scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (300), GUILayout.Height (Screen.height));
+		// display client info
+		GUILayout.BeginArea (new Rect(Screen.width-300,0,300,300));
+		scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width (300), GUILayout.Height (300));
 		GUI.skin.box.wordWrap = true; 
 		GUILayout.TextArea(status);
 		GUILayout.EndScrollView ();
