@@ -13,11 +13,17 @@ public class RobotMovement : MonoBehaviour {
 	// Sensor1,2 = LightIntensity / distToLight()
 
 
+	Vector3 myPos;  // this objects position
+
 	// list of all lights
 	private Light[] lights;
-	Vector3 myPos;
+	GameObject LeftSensor;
+	GameObject RightSensor;
+
 	// Use this for initialization
 	void Start () {
+		LeftSensor = GameObject.FindGameObjectWithTag ("spider_myOldOne").animation.Play();
+		RightSensor = GameObject.FindGameObjectWithTag ("SensorR");
 		lights = FindObjectsOfType (typeof(Light)) as Light[];
 		myPos = transform.position;
 		print (string.Format("Initial position {0}:  ",myPos));
@@ -31,6 +37,7 @@ public class RobotMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		animation.Play ("walk");
 		//cast ray to lights, determine intensity (maximum is 8)
 		// two points (sensors) on from of robot
 
