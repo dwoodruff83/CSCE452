@@ -22,7 +22,7 @@ public class RobotMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		LeftSensor = GameObject.FindGameObjectWithTag ("spider_myOldOne").animation.Play();
+		LeftSensor = GameObject.FindGameObjectWithTag ("SensorL");
 		RightSensor = GameObject.FindGameObjectWithTag ("SensorR");
 		lights = FindObjectsOfType (typeof(Light)) as Light[];
 		myPos = transform.position;
