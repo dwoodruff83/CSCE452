@@ -65,8 +65,8 @@ public class StartScreen : MonoBehaviour {
 				else
 				{
 					numBots += input;
-				}*/
-			} else if (focus == selectedControl.x) {
+				}
+			}*/ else if (focus == selectedControl.x) {
 				if (input == "b")
 				{
 					if (SetupData.xCoord.Length > 0)
@@ -130,7 +130,7 @@ public class StartScreen : MonoBehaviour {
 		}
 	}
 
-	string getKeyboardInput()
+	public string getKeyboardInput()
 	{
 		string ret = string.Empty;
 		if (Input.GetKeyDown (KeyCode.Alpha0)) {
