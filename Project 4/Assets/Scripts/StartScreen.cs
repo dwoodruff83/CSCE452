@@ -64,8 +64,8 @@ public class StartScreen : MonoBehaviour {
 	public static string yCoord = "10";
 	public static string k11 = "1";
 	public static string k12 = "0";
-	public static string k21 = "1";
-	public static string k22 = "0";
+	public static string k21 = "0";
+	public static string k22 = "1";
 	public static string xlight = "15";
 	public static string ylight = "25";
 	public static string intensity = "100";
