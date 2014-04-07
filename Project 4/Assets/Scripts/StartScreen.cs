@@ -20,12 +20,12 @@ using System.Collections.Generic;
 
 */
 
-public class Light
+public class rLight
 {
 	public int m_id;
 	public float m_x, m_y, m_intensity;
 
-	public Light(int id, float x, float y, float intensity)
+	public rLight(int id, float x, float y, float intensity)
 	{
 		m_id = id;
 		m_x = x;
@@ -53,7 +53,7 @@ public class Robot
 
 public static class SetupData
 {
-	public static List<Light> lightList = new List<Light>();
+	public static List<rLight> lightList = new List<rLight>();
 	public static List<Robot> robotList = new List<Robot>();
 }
 
@@ -106,17 +106,10 @@ public class StartScreen : MonoBehaviour {
 				}
 				else
 				{
-<<<<<<< HEAD
 					intensity += input;
 				}
 			} else if (focus == selectedControl.xbot) {
-				if (input == "\b")
-=======
-					numBots += input;
-				}
-			}*/ else if (focus == selectedControl.x) {
 				if (input == "b")
->>>>>>> 39dc474133cff02730ec8aa687af693ac00f49cd
 				{
 					if (xCoord.Length > 0)
 						xCoord = xCoord.Remove (xCoord.Length-1,1);
@@ -201,16 +194,12 @@ public class StartScreen : MonoBehaviour {
 		}
 	}
 
-<<<<<<< HEAD
 	void parseFile()
 	{
 
 	}
 
-	string getKeyboardInput()
-=======
 	public string getKeyboardInput()
->>>>>>> 39dc474133cff02730ec8aa687af693ac00f49cd
 	{
 		string ret = string.Empty;
 		ret = Input.inputString;
@@ -322,7 +311,7 @@ public class StartScreen : MonoBehaviour {
 			    float.TryParse (ylight, out yf) &&
 			    float.TryParse (intensity, out itf))
 			{
-				SetupData.lightList.Add (new Light(SetupData.lightList.Count, xf, yf, itf));
+				SetupData.lightList.Add (new rLight(SetupData.lightList.Count, xf, yf, itf));
 			}
 
 			xlight = string.Empty;
