@@ -18,7 +18,14 @@ public class Main : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
+			foreach (Robot entry in SetupData.robotList) {
+			Debug.Log ("Robot Created");
+				Instantiate(Resources.Load ("Panzer_II_Ausf_F_static"),new Vector3(entry.m_x, 1.5f, entry.m_y),new Quaternion());
+			}
+			foreach (rLight entry in SetupData.lightList) {
+			Debug.Log("Light Created");
+				Instantiate (Resources.Load ("Point light 1"),new Vector3(entry.m_x,1.5f,entry.m_y),new Quaternion());
+				}
 	}
 	
 	// Update is called once per frame
