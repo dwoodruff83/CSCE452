@@ -60,15 +60,15 @@ public static class SetupData
 public class StartScreen : MonoBehaviour {
 
 	public static string filename = string.Empty;
-	public static string xCoord = string.Empty;
-	public static string yCoord = string.Empty;
-	public static string k11 = string.Empty;
-	public static string k12 = string.Empty;
-	public static string k21 = string.Empty;
-	public static string k22 = string.Empty;
-	public static string xlight = string.Empty;
-	public static string ylight = string.Empty;
-	public static string intensity = string.Empty;
+	public static string xCoord = "10";
+	public static string yCoord = "10";
+	public static string k11 = "1";
+	public static string k12 = "0";
+	public static string k21 = "1";
+	public static string k22 = "0";
+	public static string xlight = "15";
+	public static string ylight = "25";
+	public static string intensity = "100";
 
 	public enum selectedControl {setText, xbot, ybot, k11, k12, k21, k22, xlight, ylight, intensity, none};
 	selectedControl focus = selectedControl.none;
