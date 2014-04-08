@@ -44,6 +44,8 @@ public class RobotMovement : MonoBehaviour {
 	void Update () {
 		SensorLposition = transform.Find ("SensorL").transform.position;
 		SensorRposition = transform.Find ("SensorR").transform.position;
+		//print (string.Format(" Left sensor: {0}",SensorLposition));
+		//print (string.Format(" Right sensor: {0}",SensorRposition));
 		lights = FindObjectsOfType (typeof(Light)) as Light[];
 		//cast ray to lights, determine intensity (maximum is 8)
 		// two points (sensors) on front of robot
@@ -54,8 +56,8 @@ public class RobotMovement : MonoBehaviour {
 		float Sensor2range;
 		foreach (Light light in lights) {
 			Sensor2range = light.range;
-			Sensor1 += Sensor2range / Vector3.Distance(SensorLposition,light.transform.position);
-			Sensor2 += Sensor2range / Vector3.Distance(SensorRposition,light.transform.position);
+			Sensor1 += Sensor2range / (Vector3.Distance(SensorLposition,light.transform.position)*2);
+			Sensor2 += Sensor2range / (Vector3.Distance(SensorRposition,light.transform.position)*2);
 			//print (string.Format("Distance from Left sensor to light: {0}",Sensor1));
 			//print (string.Format("Distance from Right sensor to light: {0}",Sensor2));
 
@@ -73,45 +75,48 @@ public class RobotMovement : MonoBehaviour {
 		//print (string.Format ("{0}, {1}, {2}, {3}",K11,K12,K21,K22));
 		//print (transform.rotation.y);
 		//Wheel1 is on the left side of the tank (depending on where it is facing)
-		//print (string.Format ("Sen1: {0}, Sen2: {1}",Sensor1,Sensor2));
+		print (string.Format ("Sen1: {0}, Sen2: {1}",Sensor1,Sensor2));
 		//print (string.Format ("WHEEL1: {0}, WHEEL2: {1}",Wheel1,Wheel2));
 
 		if (Wheel1 == Wheel2) {
-
-		} else if (Wheel1 > Wheel2) {
+			//Debug.Log ("Straight");
+		} else if (Wheel1 > Wheel2 && Wheel1 - Wheel2 > .1f) {
+			//Debug.Log ("turning right");
 			//Turning Right
-			//movementAngle = Mathf.Atan (Wheel1/Wheel2);  
-			movementAngle += Mathf.Atan (Wheel1/Wheel2);  
+			//movementAngle = Mathf.Atan (Wheel1/Wheel2);  /Mathf.Atan (Wheel1/Wheel2)*Time.deltaTime;
+			movementAngle += ((Wheel2+Wheel1)/Wheel1)*Time.deltaTime;
+			//Debug.Log (movementAngle);
 
-		} else if (Wheel2 > Wheel1) {
+		} else if (Wheel2 > Wheel1 && Wheel2 - Wheel1 > .1f ) {
+			//Debug.Log ("turning left");
 			//Turning Left	
-			//movementAngle = Mathf.Atan (Wheel1/Wheel2);
-			movementAngle -= Mathf.Atan (Wheel1/Wheel2);
-
+			//movementAngle = Mathf.Atan (Wheel1/Wheel2); Mathf.Atan (Wheel2/Wheel1)*Time.deltaTime;
+			movementAngle -= ((Wheel1+Wheel2)/Wheel2)*Time.deltaTime;
+			//Debug.Log (movementAngle);
 		}
 		xdisplacement = (Mathf.Sin (movementAngle) * Wheel1 + Mathf.Sin (movementAngle) * Wheel2);
 		ydisplacement = (Mathf.Cos (movementAngle) * Wheel1 + Mathf.Cos (movementAngle) * Wheel2);
 		//print (string.Format ("DisX: {0}, DisY: {1}",xdisplacement,ydisplacement));
-		transform.eulerAngles = new Vector3 (transform.eulerAngles.x, Mathf.Rad2Deg*Mathf.Atan (xdisplacement/ydisplacement), transform.eulerAngles.z);
+
+		transform.eulerAngles = new Vector3 (transform.eulerAngles.x, Mathf.Rad2Deg*Mathf.Atan2(xdisplacement,ydisplacement), transform.eulerAngles.z);
 		transform.position = new Vector3 (transform.position.x+xdisplacement*Time.deltaTime, transform.position.y, transform.position.z+ydisplacement*Time.deltaTime);
-
 		Vector3 stageDimensions = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height,0));
-		if (transform.position.x > 50)
+		if (transform.position.x > 60)
 		{
-			transform.position = new Vector3(0, transform.position.y, transform.position.z);
+			transform.position = new Vector3(-10, transform.position.y, transform.position.z);
 		}
-		else if (transform.position.x < 0)
+		else if (transform.position.x < -10)
 		{
-			transform.position = new Vector3(50, transform.position.y, transform.position.z);
+			transform.position = new Vector3(60, transform.position.y, transform.position.z);
 		}
 
-		if (transform.position.z > 30)
+		if (transform.position.z > 32)
 		{
 			transform.position = new Vector3(transform.position.x, transform.position.y, 0);
 		}
 		else if (transform.position.z < 0)
 		{
-			transform.position = new Vector3(transform.position.x, transform.position.y, 30);
+			transform.position = new Vector3(transform.position.x, transform.position.y, 32);
 		}
 	}
 	// Xcoord, Ycoord
