@@ -188,8 +188,8 @@ public class StartScreen : MonoBehaviour {
 
 	"R/L" robot or light
 	"k11".."k22" are the values of the K matrix
-	"x" and "y" are starting position coordinates
-	"i" is intensity
+	"x" and "y" are starting position coordinates; y:0-30, x:0-50
+	"i" is intensity; i:0-100
 
 
 */
@@ -201,11 +201,11 @@ public class StartScreen : MonoBehaviour {
 			string[] elems = line.Split(null);
 			if(elems[0] == "L")
 			{
-				SetupData.lightList.Add(new rLight(SetupData.lightList.Count, elems[1], elems[2], elems[3]))
+				SetupData.lightList.Add(new rLight(SetupData.lightList.Count, float.Parse(elems[1]), float.Parse(elems[2]), float.Parse(elems[3])));
 			}
 			else if(elems[0] == "R")
 			{
-				SetupData.robotList.Add (new Robot(SetupData.robotList.Count, elems[5], elems[6], elems[1], elems[2], elems[3], elems[4]));
+				SetupData.robotList.Add (new Robot(SetupData.robotList.Count, float.Parse(elems[5]), float.Parse(elems[6]), float.Parse(elems[1]), float.Parse(elems[2]), float.Parse(elems[3]), float.Parse(elems[4])));
 			}
 			else
 			{
