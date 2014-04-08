@@ -66,8 +66,8 @@ public class RobotMovement : MonoBehaviour {
 		float ydisplacement =0;
 		//print (string.Format("Average distance from left sensor to light: {0}",Sensor1));
 		//print (string.Format("Average distance from right sensor to light: {0}",Sensor2));
-		Wheel1 = (K11*Sensor1 + K12*Sensor2)*1;
-		Wheel2 = (K21*Sensor1 + K22*Sensor2)*1;
+		Wheel1 = (K11*Sensor1 + K12*Sensor2)*.1f;
+		Wheel2 = (K21*Sensor1 + K22*Sensor2)*.1f;
 		//print (string.Format ("{0}, {1}, {2}, {3}",K11,K12,K21,K22));
 		//print (transform.rotation.y);
 		//Wheel1 is on the left side of the tank (depending on where it is facing)
@@ -82,7 +82,7 @@ public class RobotMovement : MonoBehaviour {
 
 		} else if (Wheel2 > Wheel1) {
 			//Turning Left	
-			movementAngle = Mathf.Atan (Wheel2/Wheel1);
+			movementAngle = Mathf.Atan (Wheel1/Wheel2);
 
 		}
 		xdisplacement = (Mathf.Sin (movementAngle) * Wheel1 + Mathf.Sin (movementAngle) * Wheel2);
