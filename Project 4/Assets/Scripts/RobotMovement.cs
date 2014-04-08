@@ -14,20 +14,22 @@ public class RobotMovement : MonoBehaviour {
 	// Sensor1,2 = LightIntensity / distToLight()
 
 	//Vector3 myPos;  // this objects position
-	
+
 	// list of all lights
 	private Light[] lights;
 	Vector3 SensorLposition;
 	Vector3 SensorRposition;
 	float SensorLdistance;
 	float SensorRdistance;	
-	
+	float movementAngle;
 	// Use this for initialization
 	void Start () {
 		//print (SensorLposition);
 		//print (SensorRposition);
-		
 
+		Wheel1 = 0; 
+		Wheel2 = 0;
+		movementAngle = 0;
 		//myPos = transform.position;
 		//print (string.Format("Initial position: {0}",myPos));
 		/*foreach (Light light in lights) {
@@ -45,10 +47,10 @@ public class RobotMovement : MonoBehaviour {
 		lights = FindObjectsOfType (typeof(Light)) as Light[];
 		//cast ray to lights, determine intensity (maximum is 8)
 		// two points (sensors) on front of robot
-		Wheel1 = 0; 
-		Wheel2 = 0;
 		Sensor1 = 0;
 		Sensor2 = 0;
+
+
 		float Sensor2range;
 		foreach (Light light in lights) {
 			Sensor2range = light.range;
@@ -73,16 +75,18 @@ public class RobotMovement : MonoBehaviour {
 		//Wheel1 is on the left side of the tank (depending on where it is facing)
 		//print (string.Format ("Sen1: {0}, Sen2: {1}",Sensor1,Sensor2));
 		//print (string.Format ("WHEEL1: {0}, WHEEL2: {1}",Wheel1,Wheel2));
-		float movementAngle = 0;
+
 		if (Wheel1 == Wheel2) {
-				
+
 		} else if (Wheel1 > Wheel2) {
 			//Turning Right
-			movementAngle = Mathf.Atan (Wheel1/Wheel2);  
+			//movementAngle = Mathf.Atan (Wheel1/Wheel2);  
+			movementAngle += Mathf.Atan (Wheel1/Wheel2);  
 
 		} else if (Wheel2 > Wheel1) {
 			//Turning Left	
-			movementAngle = Mathf.Atan (Wheel1/Wheel2);
+			//movementAngle = Mathf.Atan (Wheel1/Wheel2);
+			movementAngle -= Mathf.Atan (Wheel1/Wheel2);
 
 		}
 		xdisplacement = (Mathf.Sin (movementAngle) * Wheel1 + Mathf.Sin (movementAngle) * Wheel2);
