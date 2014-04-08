@@ -2,24 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-/*
-	Possible format for reading in Robot parameters from file:
-
-	N
-	1 k11 k12 k21 k22 x y e
-	2 k11 k12 k21 k22 x y e
-	.
-	.
-	.
-	N k11 k12 k21 k22 x y e
-
-	"N" is number of Robots requested by user
-	"k11".."k22" are the values of the K matrix
-	"x" and "y" are starting position coordinates
-	"e" represents end of line
-
-*/
-
 public class rLight
 {
 	public int m_id;
@@ -193,10 +175,43 @@ public class StartScreen : MonoBehaviour {
 			}
 		}
 	}
+	/*
+	Possible format for reading in Robot parameters from file:
 
+
+	R k11 k12 k21 k22 x y
+	L x y i
+	.
+	.
+	.
+	R k11 k12 k21 k22 x y
+
+	"R/L" robot or light
+	"k11".."k22" are the values of the K matrix
+	"x" and "y" are starting position coordinates
+	"i" is intensity
+
+
+*/
 	void parseFile()
 	{
-
+		string[] lines = System.IO.File.ReadAllLines(filename);
+		foreach(string line in lines)
+		{
+			string[] elems = line.Split(null);
+			if(elems[0] == "L")
+			{
+				SetupData.lightList.Add(new rLight(SetupData.lightList.Count, elems[1], elems[2], elems[3]))
+			}
+			else if(elems[0] == "R")
+			{
+				SetupData.robotList.Add (new Robot(SetupData.robotList.Count, elems[5], elems[6], elems[1], elems[2], elems[3], elems[4]));
+			}
+			else
+			{
+				//wut?
+			}
+		}
 	}
 
 	public string getKeyboardInput()
