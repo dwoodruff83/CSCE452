@@ -22,9 +22,7 @@ public class Rectangle
 		topright = new Vector3 (right, top);
 		botleft = new Vector3 (left, bot);
 		botright = new Vector3 (right, bot);
-
 	}
-
 }
 
 public class obstacle
@@ -33,36 +31,48 @@ public class obstacle
 	{
 		gameobject = gameobjectm;
 		position = gameobject.transform.position;
-		halfwidth = halfwidthm;
-		halfheight = halfheightm;
+		width = halfwidthm*2;
+		height = halfheightm*2;
 	}
 	
 	public void update()
 	{
 		position = gameobject.transform.position;
+
+		top = position.y + height/2;
+		left = position.x - width/2;
+		
+		bot = top - height;
+		right = left + width;
+
+		center = position;
+		topleft = new Vector3 (left, top);
+		topright = new Vector3 (right, top);
+		botleft = new Vector3 (left, bot);
+		botright = new Vector3 (right, bot);
 	}
 	
 	public bool contains(Rectangle test)
 	{
-		float leftx, rightx, topy, boty;
-		leftx = position.x - halfwidth;
-		rightx = position.x + halfwidth;
-		topy = position.y + halfheight;
-		boty = position.y - halfheight;
-		
-		if (test.topleft.x >= leftx && test.topleft.x <= rightx && test.topleft.y <= topy && test.topleft.y >= boty ||
-		    test.topright.x >= leftx && test.topright.x <= rightx && test.topright.y <= topy && test.topright.y >= boty ||
-		    test.botleft.x >= leftx && test.botleft.x <= rightx && test.botleft.y <= topy && test.botleft.y >= boty ||
-		    test.botright.x >= leftx && test.botright.x <= rightx && test.botright.y <= topy && test.botright.y >= boty)
+		if (test.topleft.x >= left && test.topleft.x <= right && test.topleft.y <= top && test.topleft.y >= bot ||
+		    test.topright.x >= left && test.topright.x <= right && test.topright.y <= top && test.topright.y >= bot ||
+		    test.botleft.x >= left && test.botleft.x <= right && test.botleft.y <= top && test.botleft.y >= bot ||
+		    test.botright.x >= left && test.botright.x <= right && test.botright.y <= top && test.botright.y >= bot)
+		{
+			return true;
+		}
+		else if (topleft.x >= test.left && topleft.x <= test.right && topleft.y <= test.top && topleft.y >= test.bot ||
+		         topright.x >= test.left && topright.x <= test.right && topright.y <= test.top && topright.y >= test.bot ||
+		         botleft.x >= test.left && botleft.x <= test.right && botleft.y <= test.top && botleft.y >= test.bot ||
+		         botright.x >= test.left && botright.x <= test.right && botright.y <= test.top && botright.y >= test.bot)
 		{
 			return true;
 		}
 		return false;
-		
 	}
-	
-	public float halfwidth;
-	public float halfheight;
+
+	public float bot, top, left, right, width, height;
+	public Vector3 center, topleft, topright, botleft, botright;
 	public Vector3 position;
 	public GameObject gameobject;
 }
@@ -92,21 +102,21 @@ public class rectWrap
 		printer(rect.topleft, rect.botleft);
 		printer(rect.topright, rect.botright);
 		printer(rect.botleft, rect.botright);
-		/*foreach (rectWrap entry in up) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.white,10000);
-		}*/
+		foreach (rectWrap entry in up) {
+			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+		}
 		
-		/*foreach (rectWrap entry in down) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.white,10000);
+		foreach (rectWrap entry in down) {
+			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
 		}
 		
 		foreach (rectWrap entry in left) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.white,10000);
+			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
 		}
 		
 		foreach (rectWrap entry in right) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.white,10000);
-		}*/
+			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+		}
 	}
 
 	public void print()
@@ -191,28 +201,32 @@ public class Main : MonoBehaviour {
 	{
 		for (int i = 0; i < rectList.Count; i++)
 		{
-			for (int j = i+1; j <rectList.Count; j++)
+			for (int j = 0; j <rectList.Count; j++)
 			{
 				rectWrap entry = rectList[i];
 				rectWrap entry2 = rectList[j];
-				if (entry.rect.top == entry2.rect.bot)
-				{
-					entry.up.Add(entry2);
-				}
 
-				if (entry.rect.bot == entry2.rect.top)
+				if (entry != entry2)
 				{
-					entry.down.Add(entry2);
-				}
+					if (entry.rect.top == entry2.rect.bot && (entry.rect.left <= entry2.rect.left && entry.rect.right >= entry2.rect.right) ||
+					   (entry2.rect.left <= entry.rect.left && entry2.rect.right >= entry.rect.right))
+					{
+						entry.up.Add (entry2);
+					}
+					else if (entry.rect.bot == entry2.rect.top && (entry.rect.left <= entry2.rect.left && entry.rect.right >= entry2.rect.right) ||
+					        (entry2.rect.left <= entry.rect.left && entry2.rect.right >= entry.rect.right))
+					{
+						entry.down.Add(entry2);
+					}
 
-				if (entry.rect.left == entry2.rect.right)
-				{
-					entry.left.Add(entry2);
-				}
-
-				if (entry.rect.right == entry2.rect.left)
-				{
-					entry.right.Add(entry2);
+					/*if (entry.rect.left == entry2.rect.right)
+					{
+						entry.left.Add (entry2);
+					}
+					else if (entry.rect.right == entry2.rect.left)
+					{
+						entry.right.Add (entry2);
+					}*/
 				}
 			}
 		}
@@ -253,6 +267,11 @@ public class Main : MonoBehaviour {
 				if (collisionCount > temp.colcount)
 				{
 					temp.colcount = collisionCount;
+				}
+
+				if (collided)
+				{
+					break;
 				}
 			}
 
@@ -318,7 +337,7 @@ public class Main : MonoBehaviour {
 			rectList.Clear();
 			rectList = SubdivideArea (upperbound, leftbound, width, height, 4, 0);
 			DetermineCollisions ();
-			//BuildGraph ();
+			BuildGraph ();
 			printed = true;
 		}
 		else if (waitTime > 0)
