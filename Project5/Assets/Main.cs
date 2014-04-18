@@ -83,7 +83,7 @@ public class rectWrap
 
 	public static void printer(Vector3 start, Vector3 end)
 	{
-		Debug.DrawLine (start, end, Color.white ,20);
+		Debug.DrawLine (start, end, Color.white ,1);
 	}
 
 	public void printLines()
@@ -319,15 +319,16 @@ public class Main : MonoBehaviour {
 			rectList = SubdivideArea (upperbound, leftbound, width, height, 4, 0);
 			DetermineCollisions ();
 			//BuildGraph ();
-			for (int i = 0; i < rectList.Count; i++)
-			{
-				rectList [i].printLines ();
-			}
 			printed = true;
 		}
 		else if (waitTime > 0)
 		{
 			waitTime -= Time.deltaTime;
+		}
+
+		for (int i = 0; i < rectList.Count; i++)
+		{
+			rectList [i].printLines ();
 		}
 	}
 }
