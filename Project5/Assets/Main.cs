@@ -18,10 +18,10 @@ public class Rectangle
 		right = left + width;
 
 		center = new Vector3 (top - (height / 2), (leftm + width / 2), 0);
-		topleft = new Vector3 (top, left);
-		topright = new Vector3 (top, right);
-		botleft = new Vector3 (bot, left);
-		botright = new Vector3 (bot, right);
+		topleft = new Vector3 (left, top);
+		topright = new Vector3 (right, top);
+		botleft = new Vector3 (left, bot);
+		botright = new Vector3 (right, bot);
 
 	}
 
@@ -72,7 +72,7 @@ public class rectWrap
 	public rectWrap(float ID,float topm, float leftm, float width, float height, float subcounter)
 	{
 		id = ID;
-		rect = new Rectangle (leftm, topm, width, height);
+		rect = new Rectangle (topm, leftm, width, height);
 		weight = Mathf.Abs (width * height);
 		subcount = subcounter + 1;
 		up = new List<rectWrap> ();
@@ -135,6 +135,7 @@ public class rectWrap
 		Debug.Log (string.Format ("ID {0} UP {1}, Down {2}, Left {3}, Right {4} \nAbove: {5}\n Below: {6}\n totheleft: {7}\n totheright: {8}\n", id, rect.top, rect.bot, rect.left, rect.right,above, below, totheleft, totheright));
 	}
 
+	public int colcount;
 	public float id;
 	public Rectangle rect;
 	public float weight;
@@ -150,7 +151,7 @@ public class Main : MonoBehaviour {
 	static int idmaster = 0;
 	public List<obstacle> obstacleList = new List<obstacle> ();
 	public List<rectWrap> rectList = new List<rectWrap>();
-	public float upperbound, lowerbound, leftbound, rightbound;
+	public float upperbound, leftbound, width, height;
 	public float waitTime = 0;
 
 	GameObject selected = null;
@@ -169,8 +170,6 @@ public class Main : MonoBehaviour {
 			for (int j = 0; j < cuts; j++)
 			{
 				tempList.Add(new rectWrap(idmaster++, top-j*dy,left+i*dx,dx,dy,subdivisions));
-				rectWrap bla = tempList[i+j];
-				bla.print();
 			}
 		}
 
@@ -180,9 +179,9 @@ public class Main : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		upperbound = 6;
-		lowerbound = -4;
 		leftbound = -5;
-		rightbound = 5;
+		width = 10;
+		height = 10;
 		obstacleList.Add (new obstacle(GameObject.Find ("block1"),2.5f,2.5f));
 		obstacleList.Add (new obstacle(GameObject.Find ("block2"),1.5f,1.5f));
 		obstacleList.Add (new obstacle(GameObject.Find ("block3"),1,1));
@@ -228,7 +227,7 @@ public class Main : MonoBehaviour {
 
 			foreach (obstacle entry in obstacleList)
 			{
-				/*int collisionCount = 0;
+				int collisionCount = 0;
 
 				if (entry.contains ( temp.rect))
 				{
@@ -251,19 +250,29 @@ public class Main : MonoBehaviour {
 					collided = true;
 				}
 
-				/*if (collisionCount > 2 && temp.subcount > 3)
+				if (collisionCount > temp.colcount)
 				{
-					//rectList.RemoveAt(i);
-					collided = false;
-					break;
-				}*/
+					temp.colcount = collisionCount;
+				}
 			}
 
-			if (true && temp.subcount <= 3)
+			if (collided && temp.subcount <= 3)
 			{
-				List<rectWrap> subdividedArea = SubdivideArea(temp.rect.top,temp.rect.bot,temp.rect.width,temp.rect.height,4,temp.subcount);
+				List<rectWrap> subdividedArea = SubdivideArea(temp.rect.top,temp.rect.left,temp.rect.width,temp.rect.height,4,temp.subcount);
 				rectList.Remove(temp);
 				rectList.AddRange(subdividedArea);
+			}
+			else
+			{
+				i++;
+			}
+		}
+
+		for( int i = 0; i < rectList.Count;)
+		{
+			if (rectList[i].colcount >= 1)
+			{
+				rectList.RemoveAt(i);
 			}
 			else
 			{
@@ -299,16 +308,16 @@ public class Main : MonoBehaviour {
 			mousedown = false;
 		} 
 
-		foreach (obstacle entry in obstacleList)
-		{
-			entry.update();
-		}
-
 		if (waitTime <= 0 && !printed)
 		{
+			foreach (obstacle entry in obstacleList)
+			{
+				entry.update();
+			}
+
 			rectList.Clear();
-			rectList = SubdivideArea (upperbound, leftbound, 10, 10, 4, 0);
-			//DetermineCollisions ();
+			rectList = SubdivideArea (upperbound, leftbound, width, height, 4, 0);
+			DetermineCollisions ();
 			//BuildGraph ();
 			for (int i = 0; i < rectList.Count; i++)
 			{
