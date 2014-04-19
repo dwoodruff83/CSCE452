@@ -17,11 +17,20 @@ public class Rectangle
 		bot = top - height;
 		right = left + width;
 
-		center = new Vector3 (top - (height / 2), (leftm + width / 2), 0);
+		center = new Vector3 ((left + width / 2),(top - height / 2), 0);
 		topleft = new Vector3 (left, top);
 		topright = new Vector3 (right, top);
 		botleft = new Vector3 (left, bot);
 		botright = new Vector3 (right, bot);
+	}
+
+	public bool contains(Vector3 point)
+	{
+		if (point.x > left && point.x < right && point.y < top && point.y > bot)
+		{
+			return true;
+		}
+		return false;
 	}
 }
 
@@ -91,31 +100,32 @@ public class rectWrap
 		right = new List<rectWrap> ();
 	}
 
-	public static void printer(Vector3 start, Vector3 end)
+	public static void printer(Vector3 start, Vector3 end, Color color)
 	{
-		Debug.DrawLine (start, end, Color.white ,1);
+		Debug.DrawLine (start, end, color, 1);
 	}
 
 	public void printLines()
 	{
-		printer(rect.topleft, rect.topright);
-		printer(rect.topleft, rect.botleft);
-		printer(rect.topright, rect.botright);
-		printer(rect.botleft, rect.botright);
+		printer(rect.topleft, rect.topright, Color.white);
+		printer(rect.topleft, rect.botleft, Color.white);
+		printer(rect.topright, rect.botright, Color.white);
+		printer(rect.botleft, rect.botright, Color.white);
+
 		foreach (rectWrap entry in up) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+			printer (rect.center, entry.rect.center, Color.red);
 		}
 		
 		foreach (rectWrap entry in down) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+			printer (rect.center, entry.rect.center, Color.green);
 		}
 		
 		foreach (rectWrap entry in left) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+			printer (rect.center, entry.rect.center, Color.blue);
 		}
 		
 		foreach (rectWrap entry in right) {
-			Debug.DrawLine(rect.center,entry.rect.center, Color.red,1);
+			printer (rect.center, entry.rect.center, Color.yellow);
 		}
 	}
 
@@ -127,22 +137,22 @@ public class rectWrap
 		string totheright = "";
 
 		foreach (rectWrap entry in up) {
-			above += " ," + entry.id;
+			above += " " + entry.id;
 				}
 
 		foreach (rectWrap entry in down) {
-			below +=" ," + entry.id;
+			below +=" " + entry.id;
 				}
 
 		foreach (rectWrap entry in left) {
-			totheleft +=" ," + entry.id;
+			totheleft +=" " + entry.id;
 				}
 
 		foreach (rectWrap entry in right) {
-			totheright +=" ," + entry.id;
+			totheright +=" " + entry.id;
 				}
 
-		Debug.Log (string.Format ("ID {0} UP {1}, Down {2}, Left {3}, Right {4} \nAbove: {5}\n Below: {6}\n totheleft: {7}\n totheright: {8}\n", id, rect.top, rect.bot, rect.left, rect.right,above, below, totheleft, totheright));
+		Debug.Log (string.Format ("ID {0} UP {1}, Down {2}, Left {3}, Right {4}\nCenter: {5}\nAbove: {6}\n Below: {7}\n totheleft: {8}\n totheright: {9}\n", id, rect.top, rect.bot, rect.left, rect.right, rect.center, above, below, totheleft, totheright));
 	}
 
 	public int colcount;
@@ -208,25 +218,62 @@ public class Main : MonoBehaviour {
 
 				if (entry != entry2)
 				{
-					if (entry.rect.top == entry2.rect.bot && (entry.rect.left <= entry2.rect.left && entry.rect.right >= entry2.rect.right) ||
-					   (entry2.rect.left <= entry.rect.left && entry2.rect.right >= entry.rect.right))
+					Vector3 toptest = new Vector3(entry.rect.center.x,entry.rect.top+.01f, 0);
+					Vector3 bottest = new Vector3(entry.rect.center.x,entry.rect.bot-.01f, 0); 
+					Vector3 lefttest = new Vector3(entry.rect.left-.01f,entry.rect.center.y, 0); 
+					Vector3 righttest = new Vector3(entry.rect.right+.01f,entry.rect.center.y, 0); 
+
+					if (entry2.rect.contains (toptest))
 					{
-						entry.up.Add (entry2);
-					}
-					else if (entry.rect.bot == entry2.rect.top && (entry.rect.left <= entry2.rect.left && entry.rect.right >= entry2.rect.right) ||
-					        (entry2.rect.left <= entry.rect.left && entry2.rect.right >= entry.rect.right))
-					{
-						entry.down.Add(entry2);
+						if (!entry.up.Contains(entry2))
+						{
+							entry.up.Add(entry2);
+						}
+
+						if (!entry2.down.Contains(entry))
+						{
+							entry2.down.Add(entry);
+						}
 					}
 
-					/*if (entry.rect.left == entry2.rect.right)
+					if (entry2.rect.contains(bottest))
 					{
-						entry.left.Add (entry2);
+						if (!entry.down.Contains(entry2))
+						{
+							entry.down.Add(entry2);
+						}
+
+						if (!entry2.up.Contains(entry))
+						{
+							entry2.up.Add(entry);
+						}
 					}
-					else if (entry.rect.right == entry2.rect.left)
+
+					if (entry2.rect.contains(lefttest))
 					{
-						entry.right.Add (entry2);
-					}*/
+						if (!entry.left.Contains(entry2))
+						{
+							entry.left.Add (entry2);
+						}
+
+						if (!entry2.right.Contains(entry))
+						{
+							entry2.right.Add(entry);
+						}
+					}
+
+					if (entry2.rect.contains (righttest))
+					{
+						if (!entry.right.Contains(entry2))
+						{
+							entry.right.Add (entry2);
+						}
+
+						if (!entry2.left.Contains(entry))
+						{
+							entry2.left.Add(entry);
+						}
+					}
 				}
 			}
 		}
@@ -338,6 +385,10 @@ public class Main : MonoBehaviour {
 			rectList = SubdivideArea (upperbound, leftbound, width, height, 4, 0);
 			DetermineCollisions ();
 			BuildGraph ();
+			/*for (int i = 0; i < rectList.Count; i++)
+			{
+				rectList[i].print();
+			}*/
 			printed = true;
 		}
 		else if (waitTime > 0)
