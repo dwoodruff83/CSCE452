@@ -155,6 +155,16 @@ public class rectWrap
 		Debug.Log (string.Format ("ID {0} UP {1}, Down {2}, Left {3}, Right {4}\nCenter: {5}\nAbove: {6}\n Below: {7}\n totheleft: {8}\n totheright: {9}\n", id, rect.top, rect.bot, rect.left, rect.right, rect.center, above, below, totheleft, totheright));
 	}
 
+	public List<rectWrap> getNeighbors()
+	{
+		List<rectWrap> neighbors = new List<rectWrap> ();
+		neighbors.AddRange (up);
+		neighbors.AddRange (down);
+		neighbors.AddRange (left);
+		neighbors.AddRange (right);
+		return neighbors;
+	}
+
 	public int colcount;
 	public float id;
 	public Rectangle rect;
@@ -347,6 +357,87 @@ public class Main : MonoBehaviour {
 		}
 	}
 
+	void Search()
+	{
+		GameObject startobject = GameObject.Find ("start");
+		GameObject endobject = GameObject.Find ("end");
+
+		rectWrap start = null;
+		rectWrap end = null;
+
+		foreach (rectWrap entry in rectList)
+		{
+			if (start == null || Vector3.Distance(entry.rect.center,startobject.transform.position) < Vector3.Distance (start.rect.center,startobject.transform.position))
+			{
+				start = entry;
+			}
+
+			if (end == null || Vector3.Distance(entry.rect.center,endobject.transform.position) < Vector3.Distance (end.rect.center,endobject.transform.position))
+			{
+				end = entry;
+			}
+		}
+		//Debug.Log (string.Format ("Start {0}\nEnd {1}", start.rect.center, end.rect.center));
+		//Debug.DrawLine(startobject.transform.position, start.rect.center, Color.black,100);
+		//Debug.DrawLine(endobject.transform.position, end.rect.center, Color.black, 100);
+		if (start != null && end != null)
+		{
+			List<rectWrap> usedList = new List<rectWrap>();
+			List<rectWrap> searchList = subSearch (start, end, usedList);
+
+			if (searchList.Count > 0)
+			{
+				LineRenderer line = GetComponent<LineRenderer> ();
+				line.SetColors (Color.cyan, Color.cyan);
+				line.SetWidth (.1f, .1f);
+				line.SetVertexCount (searchList.Count + 3);
+				line.SetPosition(0, startobject.transform.position);
+				line.SetPosition(1,start.rect.center);
+				for (int i =0; i < searchList.Count; i++)
+				{
+					line.SetPosition (i+2, searchList [i].rect.center);
+				}
+				line.SetPosition(searchList.Count+2, endobject.transform.position);
+			}
+		}
+	}
+
+	public List<rectWrap> subSearch(rectWrap point, rectWrap end, List<rectWrap> usedList)
+	{
+		List<rectWrap> searchList = new List<rectWrap> ();
+		searchList.AddRange (point.getNeighbors());
+		usedList.Add (point);
+		rectWrap min = null;
+		float minh = 0;
+		foreach (rectWrap entry in searchList)
+		{
+			if (!usedList.Contains(entry) && (min == null || huer(entry, min) < minh))
+			{
+				min = entry;
+				minh = huer (entry,end);
+			}
+		}
+
+		List<rectWrap> endList = new List<rectWrap> ();
+
+		if (min == null)
+		{
+			return endList;
+		}
+
+		endList.Add (min);
+		if (min != end)
+		{
+			endList.AddRange (subSearch (min, end, usedList));
+		}
+		return endList;
+	}
+
+	public float huer(rectWrap point, rectWrap end)
+	{
+		return Vector3.Distance (point.rect.center, end.rect.center);
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -385,6 +476,7 @@ public class Main : MonoBehaviour {
 			rectList = SubdivideArea (upperbound, leftbound, width, height, 4, 0);
 			DetermineCollisions ();
 			BuildGraph ();
+			Search ();
 			/*for (int i = 0; i < rectList.Count; i++)
 			{
 				rectList[i].print();
