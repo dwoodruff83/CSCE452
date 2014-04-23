@@ -385,7 +385,7 @@ public class Main : MonoBehaviour {
 			List<rectWrap> usedList = new List<rectWrap>();
 			List<rectWrap> searchList = subSearch (start, end, usedList);
 
-			if (searchList.Count > 0)
+			if (searchList.Count > 0 && searchList[searchList.Count-1] == end)
 			{
 				LineRenderer line = GetComponent<LineRenderer> ();
 				line.SetColors (Color.cyan, Color.cyan);
@@ -398,6 +398,10 @@ public class Main : MonoBehaviour {
 					line.SetPosition (i+2, searchList [i].rect.center);
 				}
 				line.SetPosition(searchList.Count+2, endobject.transform.position);
+			}
+			else {
+				LineRenderer line = GetComponent<LineRenderer> ();
+				line.SetVertexCount(0);
 			}
 		}
 	}
